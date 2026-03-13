@@ -1,0 +1,1 @@
+We're pretraining LLM on mongolian language
