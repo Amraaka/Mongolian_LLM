@@ -1,4 +1,0 @@
-base_model: "Qwen/Qwen2-1.5B"
-trust_remote_code: true
-use_flash_attention_2: false
-torch_dtype: "bfloat16"

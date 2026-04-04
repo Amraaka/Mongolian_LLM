@@ -1,48 +1,124 @@
-# Mongolian LLM (Qwen2B Continued Pretraining)
+# F.CS332 Гүн Сургалт Хичээлийн Курсын Ажлын Удирдамж
 
-This repository contains a practical starter pipeline for continued pretraining of Qwen2B on Mongolian text.
+**Оюутны курсын ажил – Монгол хэл дээрх LLM загвар сургах, сайжруулах, хэрэглээний түвшинд ашиглах**
 
-## Quick Start
+---
 
-1. Create and activate a Python 3.10+ environment.
-2. Install dependencies:
-   - `pip install -r requirements.txt`
-3. Copy environment template:
-   - `cp .env.example .env`
-4. Prepare input text files under `data/raw/` (one `.txt` file per source).
-5. Run the data pipeline:
-   - `bash scripts/run_data_pipeline.sh`
-6. Launch a smoke training run:
-   - `bash scripts/run_train_single.sh`
-7. Run eval:
-   - `bash scripts/run_eval.sh`
-8. Run smoke test (includes resume + eval):
-   - `bash scripts/run_smoke.sh`
+## 1. Ерөнхий Танилцуулга
 
-## Environment Notes (CUDA / PyTorch)
+Энэхүү курсын ажил нь **гүн сургалтын орчин үеийн хэлний загварууд (Large Language Models – LLM)**-ыг сонгон авч, **монгол хэл дээр сургах, сайжруулах, мөн хэрэглээний түвшинд ашиглах** чадварыг хөгжүүлэх зорилготой.
 
-- Install a PyTorch wheel matching your CUDA runtime.
-- Example matrix:
-  - CUDA 12.1 -> use PyTorch wheels tagged for cu121.
-  - CUDA 11.8 -> use PyTorch wheels tagged for cu118.
-- Verify GPU visibility:
-  - `python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"`
-- If you only have CPU, keep smoke configs tiny and expect very slow runs.
+Оюутнууд **0.8B–4B параметр бүхий нээлттэй LLM загварыг** сонгон авч дараах дараалсан сургалтын үе шатуудыг хэрэгжүүлнэ:
 
-## Project Structure
+1. Монгол хэлний өгөгдөл ашиглан **pretraining / continued pretraining**
+2. **Асуулт-хариултын fine-tuning**
+3. **DPO (Direct Preference Optimization)** ашиглан хариултыг сайжруулах
+4. Өөрсдийн үүсгэсэн dataset ашиглан **instruction fine-tuning**
 
-- `configs/`: YAML and DeepSpeed config files
-- `src/data/`: data ingestion, cleaning, deduplication, and splitting
-- `src/tokenization/`: tokenizer and tokenized dataset builders
-- `src/train/`: continued pretraining script and training helpers
-- `src/eval/`: perplexity and generation checks
-- `scripts/`: executable shell wrappers
-- `data/`: raw, interim, processed, and manifests
-- `checkpoints/`: model checkpoints (gitignored)
-- `logs/`: run logs (gitignored)
+Сургалтын өмнөх болон дараах загварын гүйцэтгэлийг харьцуулж **дүгнэлт гаргана**.
 
-## Notes
+### Зорилго
+- Том хэлний загваруудын сургалтын pipeline ойлгох
+- Монгол хэлний NLP загвар боловсруулах
+- Fine-tuning болон alignment аргуудыг турших
+- Загварын гүйцэтгэлийг үнэлэх чадвар эзэмших
 
-- For multi-GPU runs, use `scripts/run_train_distributed.sh`.
-- Adjust all hyperparameters through files in `configs/`.
-- `configs/train/train_smoke.yaml` is for quick validation only.
+### Ашиглах Загварууд
+Оюутан дараах хэмжээний LLM-үүдээс **нэгийг** сонгож ашиглана.
+
+**Параметрийн хэмжээ:** 0.8B – 4B
+
+**Жишээ загварууд:**
+- **Qwen(2.5,3,3.5)-0.8B / 3B**
+- **Gemma(2,3)-2B / 4B**
+- **Llama-3-1B**
+- **Phi-3 Mini**
+
+### Шаардлагатай Хэрэгслүүд
+
+**Програмчлалын хэл**
+- Python
+
+**Орчин**
+- Google Colab / 317 тоот өрөөний GPU workstation / Kaggle / Server
+
+**Сангууд**
+- PyTorch
+- HuggingFace Transformers
+- Datasets
+- TRL (DPO training)
+- Accelerate / PEFT (LoRA)
+- Evaluate
+
+### Хугацаа ба Үнэлгээ
+
+**Хугацаа:** 3–6 долоо хоног
+
+**Ирүүлэх материал**
+- Код (GitHub)
+- Тайлан (PDF) – ШУТИС МХТС Эрдэм шинжилгээний өгүүлэл бичих стандартын дагуу
+- Загварын checkpoint
+- Танилцуулга (7-10 минут)
+
+**Нийт үнэлгээ**
+
+| Хэсэг                    | Хувь  |
+|--------------------------|-------|
+| Pretraining              | 20%   |
+| QA Fine-tuning           | 20%   |
+| DPO Training             | 20%   |
+| Instruction Fine-tuning  | 20%   |
+| Үр дүн ба анализ         | 20%   |
+
+---
+
+## 2. Үндсэн Даалгаврууд
+
+Даалгавруудыг **дарааллаар** гүйцэтгэж, код болон үр дүнг тайланд оруулна.
+
+### 2.1 Монгол хэлний Pretraining (Continued Pretraining)
+
+**Даалгавар**  
+Сонгосон LLM загварыг монгол хэлний текст dataset ашиглан дахин сургах.
+
+**Dataset жишээ**
+- Wikipedia MN
+- Common Crawl MN
+- OSCAR Mongolian
+- News dataset
+- Open subtitles
+- [SharePoint dataset](https://mustedumnmy.sharepoint.com/:f:/g/personal/orgilsict_must_edu_mn/IgCZdPYaSyToSK5cO2cMLCw5AU_dkVGnvG6PrNfZvTfaSDE?e=ptqdQW)
+
+**Алхам**
+1. Dataset цуглуулах
+2. Текст цэвэрлэх
+3. Tokenization
+4. Training
+
+**Сургалтын арга**
+- Continued Pretraining
+- Causal Language Modeling
+
+**Үнэлгээ**
+- Perplexity
+- Loss
+
+**Үр дүн**  
+Сургалтын өмнөх ба дараах **perplexity**-г харьцуулах.
+
+### 2.2 Асуулт Хариултын Fine-Tuning
+
+**Даалгавар**  
+Загварыг асуултанд хариулдаг болгох.
+
+**Dataset жишээ**
+- Mongolian QA dataset
+- Translated SQuAD
+- Self-generated QA
+
+**Dataset бүтэц**
+```json
+{
+  "question": "...",
+  "answer": "..."
+}
