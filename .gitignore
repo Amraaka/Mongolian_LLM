@@ -36,3 +36,8 @@ data/processed/
 .DS_Store
 .idea/
 .vscode/
+
+
+data/
+test.ipynb
+*.pdf
