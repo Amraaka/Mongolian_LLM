@@ -4,7 +4,26 @@
 
 **for main training Qwen/Qwen3.5-2B-Base**
 
-
+# Folder Structure
+```text
+Mongolian_LLM/
+|-- configs/
+|-- data/
+|   |-- dpo_data/
+|   |-- instruction_data/
+|   |-- qa_data/
+|   |-- text_data/                  
+|   |-- vl_data/    
+|   logs/           
+|-- models/                   
+|-- scripts/
+|   |-- 1_pretrain_text.py    
+|   |-- 2_finetune_qa.py      
+|   |-- 3_train_dpo.py          
+|   |-- 4_instruction_fine_tuning.py    
+|   |-- 5_vl_fine_tuning.py
+|-- run_pipeline.sh           
+```
 
 # F.CS332 Гүн Сургалт Хичээлийн Курсын Ажлын Удирдамж
 

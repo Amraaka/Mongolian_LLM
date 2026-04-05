@@ -2,28 +2,63 @@
 # FOR REAL TRAINING Qwen/Qwen3.5-2B-Base
 # FOR SCRIPT DEMONSTRATION Qwen/Qwen3.5-0.8B
 #=====================================================================================
+# STEP1 CONTINUED PRETRIANING ON MONGOLIAN LANGUAGE
+#=====================================================================================
 import torch 
-from datasets import load_from_disk, load_dataset, concatenate_datasets
-from transformers import (
-    TrainingArguments,
-    Trainer,
-)
-import evaluate 
+from datasets import load_from_disk, load_dataset
 from huggingface_hub import login 
 import gc 
 from dotenv import load_dotenv
 import os 
 from trl import SFTTrainer, SFTConfig
-import bitsandbytes as bnb 
 from unsloth import FastVisionModel
 import argparse
 from transformers.trainer_utils import get_last_checkpoint
+import yaml
+from Mongolian_LLM.utils.utils import setup_logging, CustomLogCallback, CustomDataLoader
+import logging
+import math 
+import numpy as np 
+from torch.nn import CrossEntropyLoss
 
 load_dotenv()
 login(token=os.getenv("HF_TOKEN"))
 
+def compute_metrics(eval_preds):
+    logits, labels = eval_preds
+    
+    if isinstance(logits, tuple):
+        logits = logits[0]
+
+    logits_tensor = torch.tensor(logits)
+    labels_tensor = torch.tensor(labels)
+
+    shift_logits = logits_tensor[..., :-1, :].contiguous()
+    shift_labels = labels_tensor[..., 1:].contiguous()
+    
+    loss_fct = CrossEntropyLoss(ignore_index=-100)
+    loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+    
+    try:
+        perplexity = math.exp(loss.item())
+    except OverflowError:
+        perplexity = float("inf")
+
+    return {
+        "perplexity": perplexity,
+        "eval_loss_recalculated": loss.item() 
+    }
+
+
+
 def args_parse():
     parser = argparse.ArgumentParser(description="TRAINGING HYPERPARAMETERS")
+    parser.add_argument(
+        "--trainer",
+        help="Who is traininglog_setup this model enter your HUGGINGFACE_USER_NAME (default Ganaa0614)",
+        default="Ganaa0614",
+        choices=["Ganaa0614"] # Enter hugginface neree oruulah (AMARAA)
+    )
     parser.add_argument(
         "--model", 
         help="For code demonstration (debug) or real training", 
@@ -46,9 +81,9 @@ def args_parse():
         required=True
     )
     parser.add_argument(
-        "--epochs",
-        help="epochs 10, 20, 30, .etc (default 10)",
-        default=10,
+        "--steps",
+        help="steps 6000, 7000, 8000, .etc (default 6000)",
+        default=6000,
         type=int,
         required=True
     )
@@ -85,50 +120,29 @@ def args_parse():
     return parser.parse_args()
 
 
-def format_text(batch):
-    formatted_text = []
-
-    for text in batch["text"]:
-        formatted_text.append(text + EOS_TOKEN)
-    
-    return {"text": formatted_text}
-
-
 if __name__ == "__main__":
+    torch.backends.cuda.matmul.allow_tf32 = True 
+    torch.backends.cudnn.allow_tf32 = True
+
     args = args_parse()
 
     model_choices = {
         "debug": "Qwen/Qwen3.5-0.8B",
         "real": "Qwen/Qwen3.5-2B-Base"
     }
-    model_name = model_choices[args.model].split("/")[-1].lower()
 
-    save_dir = f"Mongolian_LLM/models/{model_name}_mongolian"
-    cache_dir = "data/cache"
+    model_name = model_choices[args.model].split("/")[-1]
+    
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    save_dir = os.path.join(current_dir, "models", f"{model_name}_{args.peft}_mongolian_text") 
+
+    hub_model_id = f"{args.trainer}/{model_name}-{args.peft}-mongolian-text-ver_{args.save_version}"
+    log_file = setup_logging(current_dir, f"{model_name}-{args.peft}-mongolian-text-ver_{args.save_version}")
 
     os.makedirs(save_dir, exist_ok=True)
 
-    if os.path.exists(f"{cache_dir}/train_set") and os.path.exists(f"{cache_dir}/test_set"):
-        train_set = load_from_disk(f"{cache_dir}/train_set")
-        test_set = load_from_disk(f"{cache_dir}/test_set")
-    else:
-        fulldataset = load_dataset("Ganaa0614/mongolian-text-dataset")
-        splitted_dataset = fulldataset.train_test_split(test_size=0.1, seed=42)
+    prev_hub_id = f"{args.trainer}/{model_name}-{args.peft}-mongolian-text-ver_{args.save_version}"
 
-        train_set = splitted_dataset["train"].map(format_text)
-        test_set = splitted_dataset["trest"].map(format_text)
-
-        train_set.save_to_disk(f"{cache_dir}/train_set")
-        test_set.save_to_disk(f"{cache_dir}/test_set")
-
-        del fulldataset
-        del splitted_dataset
-        gc.collect()
-
-
-    MAX_SEQ_LEN = 2048
-
-    
     if args.peft.lower() in ["lora", "qlora"]:
         is_4bit = (args.peft.lower() == "qlora")
         model, processor = FastVisionModel.from_pretrained(
@@ -139,10 +153,10 @@ if __name__ == "__main__":
 
         model = FastVisionModel.get_peft_model(
             model,
-            finetune_vision_layers=False,
-            finetune_language_layers=True,
+            finetune_vision=False,
+            finetune_language=True,
             finetune_attention_modules=True,
-            finetune_mlp_modules=True,
+            finetune_mlp=True,
             r=16,
             lora_alpha=16,
             lora_dropout=0,
@@ -158,6 +172,12 @@ if __name__ == "__main__":
     tokenizer = processor.tokenizer 
     EOS_TOKEN = tokenizer.eos_token 
 
+    logging.info(f"Loaded model and processer with {args.peft}!")
+
+    dataloader = CustomDataLoader(current_dir=current_dir,tokenizer=tokenizer, dataset_name="text_data")
+    train_set, test_set = dataloader.load_data()
+
+    MAX_SEQ_LEN = 2048
 
     sft_config = SFTConfig(
         output_dir=save_dir,
@@ -167,30 +187,28 @@ if __name__ == "__main__":
         per_device_eval_batch_size=args.eval_batch,
         gradient_accumulation_steps=args.grad_accum_step,
         warmup_steps=args.warmup_step,
-        num_train_epochs=args.epochs,
+        max_steps=args.steps,
         gradient_checkpointing=True,
-        fp16=True,
+        fp16=False,
+        bf16=True,
         eval_strategy="steps",
         save_strategy="steps",
-        eval_steps=100,
-        save_steps=100,
-        eval_accumulation_steps=100,
-        logging_steps=50,
+        eval_steps=1000,
+        save_steps=1000,
+        logging_steps=100,
         load_best_model_at_end=True,
         greater_is_better=False,
         save_total_limit=2,
+        dataloader_num_workers=4, 
+        dataloader_prefetch_factor=2, 
+        dataloader_pin_memory=True,
         push_to_hub=True,
-        hub_model_id=f"Ganaa0614/{model_choices[args.model]}-mongolian-ver_{args.save_version}",
+        hub_model_id=hub_model_id,
         report_to=["tensorboard"],
         dataset_num_proc=1,
         optim="adamw_8bit",
-        seed=3407
+        seed=3407,
     )
-
-    last_checkpoint = None 
-
-    if os.path.exists(save_dir) and os.listdir(save_dir):
-        last_checkpoint = get_last_checkpoint(save_dir)
 
     trainer = SFTTrainer(
         model=model,
@@ -198,15 +216,46 @@ if __name__ == "__main__":
         tokenizer=tokenizer, 
         train_dataset=train_set,
         eval_dataset=test_set,
-        processing_class=processor
+        compute_metrics=compute_metrics,
+        callbacks=[CustomLogCallback()]
     )
+    
+    logging.info(f"Trainnig started with\n" + ", ".join(f"{k}: {v}" for k, v in vars(args).items()) + "\n")
+
+    last_checkpoint = None 
+
+    if os.path.exists(save_dir) and os.listdir(save_dir):
+        last_checkpoint = get_last_checkpoint(save_dir)
 
     trainer.train(resume_from_checkpoint=last_checkpoint)
 
     trainer.save_model(save_dir)
-    trainer.push_to_hub("Training completed!")
-
+    trainer.push_to_hub("Training completed!") 
     print(f"Model saved at {save_dir}")
+
+    configs_dir = os.path.join(current_dir, "configs")
+    os.makedirs(configs_dir, exist_ok=True)
+
+    yaml_path = os.path.join(configs_dir, "saved_model_location.yaml")
+
+    config_data = {
+        "trained_model": model_name,
+        "step1": {
+            "local_path": save_dir,
+            "hub_id": hub_model_id
+        }
+    }
+
+    if os.path.exists(yaml_path):
+        with open(yaml_path, "r") as file:
+            existing_data = yaml.safe_load(file) or {}
+            existing_data.update(config_data)
+            config_data = existing_data
+    
+    with open(yaml_path, "w") as file:
+        yaml.dump(config_data, file, default_flow_style=False)
+
+    logging.info(f"Training finished\nModel saved: {save_dir}\nModel configs saved: {yaml_path}\n\n\n")
 
     del model 
     del trainer 
@@ -214,6 +263,8 @@ if __name__ == "__main__":
 
     gc.collect() 
     torch.cuda.empty_cache()    
+
+ 
 
 
 

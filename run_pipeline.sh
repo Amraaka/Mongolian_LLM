@@ -16,8 +16,6 @@ python3 train_step1.py --model debug --peft fft --batch-size 8 --epochs 20 --eva
 #===============================================================================================
 #python3 train_step1.py --model debug --peft lora --batch-size 8 --epochs 20 --eval_batch 2 --lr 2e-4 --grad_accum_step 8 --warmup_step 3 --save_version 0.1
 
-
-
 #===============================================================================================
 #FOR WORKSTATION GPU BIGGER MODEL FFT 
 #===============================================================================================
