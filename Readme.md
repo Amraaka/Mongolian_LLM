@@ -1,3 +1,11 @@
+# Model Selection 
+
+**for training script debugging demonstration Qwen/Qwen3.5-0.8B**
+
+**for main training Qwen/Qwen3.5-2B-Base**
+
+
+
 # F.CS332 Гүн Сургалт Хичээлийн Курсын Ажлын Удирдамж
 
 **Оюутны курсын ажил – Монгол хэл дээрх LLM загвар сургах, сайжруулах, хэрэглээний түвшинд ашиглах**
