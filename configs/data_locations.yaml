@@ -22,8 +22,8 @@ instruction_data:
     mapped: "/data/instruction_data/"
   hub_id: ""
 
-vl_data:
+iam_data:
   local_path:
-    raw: "/data/vl_data/mongol_iam"
-    mapped: "/data/vl_data/iam_mapped"
+    raw: "/data/iam_data/mongol_iam"
+    mapped: "/data/iam_data/iam_mapped"
   hub_id: "Ganaa0614/mongolian-iam-dataset"
