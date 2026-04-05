@@ -14,14 +14,17 @@ Mongolian_LLM/
 |   |-- qa_data/
 |   |-- text_data/                  
 |   |-- vl_data/    
+|-- data_generation/
 |   logs/           
 |-- models/                   
-|-- scripts/
+|-- src/
 |   |-- 1_pretrain_text.py    
 |   |-- 2_finetune_qa.py      
 |   |-- 3_train_dpo.py          
 |   |-- 4_instruction_fine_tuning.py    
 |   |-- 5_vl_fine_tuning.py
+|-- test/
+|-- utils/
 |-- run_pipeline.sh           
 ```
 
