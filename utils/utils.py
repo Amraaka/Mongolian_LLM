@@ -3,7 +3,7 @@ from transformers import TrainerCallback
 import logging
 import gc 
 import os 
-from datasets import load_dataset, load_from_disk, save_to_disk
+from datasets import load_dataset, load_from_disk
 import yaml 
 from typing import Any, List, Dict
 
@@ -13,13 +13,22 @@ def setup_logging(current_dir, train_session_name):
     os.makedirs(log_dir, exist_ok=True)
 
     log_file = os.path.join(log_dir, f"{train_session_name}.log")
+    
     logging.basicConfig(
-        filename=str(log_file),
-        filemode="a",
+        level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
-        level=logging.INFO
+        force=True, 
+        handlers=[
+            logging.FileHandler(log_file, mode='a'), 
+            logging.StreamHandler()                  
+        ]
     )
-    return log_file    
+    
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("huggingface_hub").setLevel(logging.WARNING)
+    logging.getLogger("filelock").setLevel(logging.WARNING)
+    
+    return log_file
 
 
 class CustomLogCallback(TrainerCallback):
@@ -40,7 +49,7 @@ class CustomDataLoader():
         self.EOS_TOKEN = self.tokenizer.eos_token
         self.maps = {"text_data": self.format_text, 
                      "qa_data": self.format_qa, 
-                     "dpo_data": None, 
+                     "dpo_data": self.format_dpo, 
                      "instruction_data": None, 
                      "iam_data": None
                     }
@@ -69,11 +78,11 @@ class CustomDataLoader():
         rejecteds = []
 
         for prompt, chosen, rejected in zip(batch["prompt"], batch["chosen"], batch["rejected"]):
-            prompts.append(f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant|>\n")zzzz
+            prompts.append(f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n")
             chosens.append(f"{chosen}<|im_end|>")
             rejecteds.append(f"{rejected}<|im_end|>")
         
-        return {"prmopt": prompts, "chosen": chosens, "rejected": rejecteds} 
+        return {"prompt": prompts, "chosen": chosens, "rejected": rejecteds} 
 
 
     def load_data(self):
@@ -110,7 +119,3 @@ class CustomDataLoader():
             return train_set, test_set
 
 
-
-
-
-    

@@ -1,29 +1,31 @@
 text_data:
   local_path:
-    raw: "/data/text_data/mn_61785_test"
-    mapped: "/data/text_data/mn_mapped"
+    raw: "data/text_data/mn_61785_test"
+    mapped: "data/text_data/mn_mapped"
   hub_id: "Ganaa0614/mongolian-text-dataset"
 
 qa_data:
   local_path:
-    raw: "/data/qa_data/mn_qa_5322_test"
-    mapped: "/data/qa_data/qa_mapped"
+    raw: "data/qa_data/mn_qa_5322_test"
+    mapped: "data/qa_data/qa_mapped"
   hub_id: "Ganaa0614/mongolian-qa-dataset"
 
 dpo_data: 
   local_path:
-    raw: "/data/dpo_data/"
-    mapped: "/data/dpo_data/"
+    raw: "data/dpo_data/"
+    mapped: "data/dpo_data/"
   hub_id: ""
 
 instruction_data:
   local_path:
-    raw: "/data/instruction_data/"
-    mapped: "/data/instruction_data/"
+    raw: "data/instruction_data/"
+    mapped: "data/instruction_data/"
   hub_id: ""
 
 iam_data:
   local_path:
-    raw: "/data/iam_data/mongol_iam"
-    mapped: "/data/iam_data/iam_mapped"
+    raw: "data/iam_data/mongol_iam"
+    mapped: "data/iam_data/iam_mapped"
   hub_id: "Ganaa0614/mongolian-iam-dataset"
+
+  

@@ -5,24 +5,30 @@
 # STEP1 CONTINUED PRETRIANING ON MONGOLIAN LANGUAGE
 #=====================================================================================
 import torch 
-from datasets import load_from_disk, load_dataset
 from huggingface_hub import login 
 import gc 
 from dotenv import load_dotenv
 import os 
-from trl import SFTTrainer, SFTConfig
+import sys 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from unsloth import FastVisionModel
+from trl import SFTTrainer, SFTConfig
 import argparse
 from transformers.trainer_utils import get_last_checkpoint
+from transformers import TrainingArguments
 import yaml
-from Mongolian_LLM.utils.utils import setup_logging, CustomLogCallback, CustomDataLoader
+from utils.utils import setup_logging, CustomLogCallback, CustomDataLoader
+
 import logging
 import math 
 import numpy as np 
 from torch.nn import CrossEntropyLoss
 
+
 load_dotenv()
 login(token=os.getenv("HF_TOKEN"))
+os.environ["WANDB_DISABLED"] = "true"
 
 def compute_metrics(eval_preds):
     logits, labels = eval_preds
@@ -132,9 +138,8 @@ if __name__ == "__main__":
     }
 
     model_name = model_choices[args.model].split("/")[-1]
-    
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    save_dir = os.path.join(current_dir, "models", f"{model_name}_{args.peft}_mongolian_text") 
+    current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    save_dir = os.path.join(current_dir, "models", f"{model_name}_{args.peft}_mongolian_text_{args.save_version}") 
 
     hub_model_id = f"{args.trainer}/{model_name}-{args.peft}-mongolian-text-ver_{args.save_version}"
     log_file = setup_logging(current_dir, f"{model_name}-{args.peft}-mongolian-text-ver_{args.save_version}")
@@ -179,10 +184,39 @@ if __name__ == "__main__":
 
     MAX_SEQ_LEN = 2048
 
+    # training_args = TrainingArguments(
+    #     output_dir=save_dir,
+    #     per_device_train_batch_size=args.batch_size,
+    #     per_device_eval_batch_size=args.eval_batch,
+    #     gradient_accumulation_steps=args.grad_accum_step,
+    #     warmup_steps=args.warmup_step,
+    #     max_steps=args.steps,
+    #     gradient_checkpointing=True,
+    #     fp16=False,
+    #     bf16=True,
+    #     eval_strategy="steps",
+    #     save_strategy="steps",
+    #     eval_steps=1000,
+    #     save_steps=1000,
+    #     logging_steps=100,
+    #     load_best_model_at_end=True,
+    #     greater_is_better=False,
+    #     save_total_limit=2,
+    #     dataloader_num_workers=0,        
+    #     dataloader_pin_memory=True,
+    #     push_to_hub=True,
+    #     hub_model_id=hub_model_id,
+    #     report_to=["tensorboard"],
+    #     optim="adamw_8bit",
+    #     seed=3407,
+    # )
+
+
     sft_config = SFTConfig(
         output_dir=save_dir,
         dataset_text_field="text",
-        max_seq_length=MAX_SEQ_LEN,
+        max_length=MAX_SEQ_LEN,   
+        eos_token=None,              
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.eval_batch,
         gradient_accumulation_steps=args.grad_accum_step,
@@ -199,27 +233,25 @@ if __name__ == "__main__":
         load_best_model_at_end=True,
         greater_is_better=False,
         save_total_limit=2,
-        dataloader_num_workers=4, 
-        dataloader_prefetch_factor=2, 
+        dataloader_num_workers=0,
         dataloader_pin_memory=True,
         push_to_hub=True,
         hub_model_id=hub_model_id,
         report_to=["tensorboard"],
-        dataset_num_proc=1,
         optim="adamw_8bit",
         seed=3407,
     )
 
     trainer = SFTTrainer(
         model=model,
-        args=sft_config,
-        tokenizer=tokenizer, 
+        args=sft_config,                  
+        processing_class=tokenizer,
         train_dataset=train_set,
-        eval_dataset=test_set,
+        eval_dataset=test_set,  
         compute_metrics=compute_metrics,
         callbacks=[CustomLogCallback()]
     )
-    
+   
     logging.info(f"Trainnig started with\n" + ", ".join(f"{k}: {v}" for k, v in vars(args).items()) + "\n")
 
     last_checkpoint = None 
