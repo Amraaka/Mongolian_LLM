@@ -194,7 +194,7 @@ if __name__ == "__main__":
     # model = AutoModelForImageTextToText.from_pretrained("Qwen/Qwen3.5-2B-Base")
 
     tokenizer = processor.tokenizer 
-    MAX_SEQ_LEN = 2084
+    MAX_SEQ_LEN = 1024
 
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     dataloader = CustomDataLoader(current_dir=current_dir,tokenizer=tokenizer, dataset_name="text_data")
     train_set, test_set = dataloader.load_data()
-    test_set = test_set.select(range(2))
+    test_set = test_set.select(range(3))
     
     # training_args = TrainingArguments(
     #     output_dir=save_dir,
@@ -276,6 +276,7 @@ if __name__ == "__main__":
         dataloader_pin_memory=True,
         push_to_hub=True,
         hub_model_id=hub_model_id,
+        lr_scheduler_type="cosine",      # Added cosine lr scheduler
         report_to=["tensorboard"],
         optim="adamw_8bit",
         seed=3407,

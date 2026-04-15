@@ -101,6 +101,7 @@ if __name__ == "__main__":
         load_best_model_at_end=True,
         greater_is_better=False,
         save_total_limit=2,
+        lr_scheduler_type="cosine",
         dataloader_num_workers=4, 
         dataloader_pin_memory=True,
         push_to_hub=True,

@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
 
     tokenizer = processor.tokenizer 
-    MAX_SEQ_LEN = 2048
+    MAX_SEQ_LEN = 1024
 
 
     if tokenizer.pad_token is None:
@@ -202,7 +202,7 @@ if __name__ == "__main__":
 
     dataloader = CustomDataLoader(current_dir=current_dir, tokenizer=tokenizer, dataset_name="qa_data")
     train_set, test_set = dataloader.load_data()
-    test_set = test_set.select(range(2))
+    test_set = test_set.select(range(3))
 
 
     # collator = DataCollatorForLanguageModeling(
@@ -233,6 +233,7 @@ if __name__ == "__main__":
         save_total_limit=2,
         dataloader_num_workers=4, 
         dataloader_pin_memory=True,
+        lr_scheduler_type="cosine",     # Added cosine lr scheduler
         push_to_hub=True,
         hub_model_id=hub_model_id,
         report_to=["tensorboard"],
