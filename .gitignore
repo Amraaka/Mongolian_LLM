@@ -41,3 +41,4 @@ data/processed/
 data/
 data_pushing.ipynb
 *.pdf
+models/
