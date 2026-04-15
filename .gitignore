@@ -42,3 +42,11 @@ data/
 data_pushing.ipynb
 *.pdf
 models/
+models/
+runs/
+*.log
+models/
+runs/
+*.log
+*.log
+runs/
