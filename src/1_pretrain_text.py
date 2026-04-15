@@ -4,6 +4,7 @@
 #=====================================================================================
 # STEP1 CONTINUED PRETRIANING ON MONGOLIAN LANGUAGE
 #=====================================================================================
+import unsloth
 import torch 
 from huggingface_hub import login 
 import gc 
@@ -11,12 +12,18 @@ from dotenv import load_dotenv
 import os 
 import sys 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from transformers import (
+    AutoProcessor, 
+    AutoModelForImageTextToText,
+    TrainingArguments,
+    Trainer,
+    DataCollatorForLanguageModeling
+)
 
 from unsloth import FastVisionModel
 from trl import SFTTrainer, SFTConfig
 import argparse
 from transformers.trainer_utils import get_last_checkpoint
-from transformers import TrainingArguments
 import yaml
 from utils.utils import setup_logging, CustomLogCallback, CustomDataLoader
 
@@ -24,6 +31,7 @@ import logging
 import math 
 import numpy as np 
 from torch.nn import CrossEntropyLoss
+
 
 
 load_dotenv()
@@ -81,8 +89,8 @@ def args_parse():
     )
     parser.add_argument(
         "--batch_size",
-        help="batch_size: 8, 16, etc (default 8)",
-        default=8,
+        help="batch_size: 8, 16, etc (default 1)",
+        default=1,
         type=int,
         required=True
     )
@@ -125,6 +133,13 @@ def args_parse():
     )
     return parser.parse_args()
 
+# def tokenize_function(examples):
+#         return tokenizer(
+#             examples["text"], 
+#             truncation=True, 
+#             max_length=MAX_SEQ_LEN
+#     )
+
 
 if __name__ == "__main__":
     torch.backends.cuda.matmul.allow_tf32 = True 
@@ -152,7 +167,7 @@ if __name__ == "__main__":
         is_4bit = (args.peft.lower() == "qlora")
         model, processor = FastVisionModel.from_pretrained(
             model_name=model_choices[args.model],
-            load_in_4bit=is_4bit,
+            load_in_4bit=is_4bit if args.peft.lower() == "qlora" else None,
             use_gradient_checkpointing="unsloth"
         )
 
@@ -171,19 +186,27 @@ if __name__ == "__main__":
     elif args.peft.lower() in ["fft"]:
         model, processor = FastVisionModel.from_pretrained(
             model_name=model_choices[args.model],
-            use_gradient_checkpointing="unsloth"
+            use_gradient_checkpointing="unsloth",
+            load_in_4bit=False
         )
 
-    tokenizer = processor.tokenizer 
-    EOS_TOKEN = tokenizer.eos_token 
+    # processor = AutoProcessor.from_pretrained("Qwen/Qwen3.5-2B-Base")
+    # model = AutoModelForImageTextToText.from_pretrained("Qwen/Qwen3.5-2B-Base")
 
+    tokenizer = processor.tokenizer 
+    MAX_SEQ_LEN = 2084
+
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+    
+    
     logging.info(f"Loaded model and processer with {args.peft}!")
 
     dataloader = CustomDataLoader(current_dir=current_dir,tokenizer=tokenizer, dataset_name="text_data")
     train_set, test_set = dataloader.load_data()
-
-    MAX_SEQ_LEN = 2048
-
+    test_set = test_set.select(range(2))
+    
     # training_args = TrainingArguments(
     #     output_dir=save_dir,
     #     per_device_train_batch_size=args.batch_size,
@@ -209,14 +232,30 @@ if __name__ == "__main__":
     #     report_to=["tensorboard"],
     #     optim="adamw_8bit",
     #     seed=3407,
+    #     remove_unused_columns=False,
+        
     # )
+
+    # data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+
+    # trainer = Trainer(
+    #     model=model,
+    #     args=training_args,                  
+    #     processing_class=tokenizer,
+    #     train_dataset=train_set,
+    #     eval_dataset=test_set,  
+    #     compute_metrics=compute_metrics,
+    #     callbacks=[CustomLogCallback()],
+    #     data_collator=data_collator
+    # )
+
 
 
     sft_config = SFTConfig(
         output_dir=save_dir,
         dataset_text_field="text",
         max_length=MAX_SEQ_LEN,   
-        eos_token=None,              
+        eos_token=tokenizer.eos_token,              
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.eval_batch,
         gradient_accumulation_steps=args.grad_accum_step,
@@ -251,6 +290,7 @@ if __name__ == "__main__":
         compute_metrics=compute_metrics,
         callbacks=[CustomLogCallback()]
     )
+
    
     logging.info(f"Trainnig started with\n" + ", ".join(f"{k}: {v}" for k, v in vars(args).items()) + "\n")
 

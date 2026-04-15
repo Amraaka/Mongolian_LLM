@@ -100,6 +100,14 @@ class CustomDataLoader():
 
             if os.path.exists(local_dir):
                 fulldataset = load_from_disk(local_dir)
+                splitted = fulldataset.train_test_split(test_size=0.2, seed=42)
+                test_val = splitted["test"].train_test_split(test_size=0.5, seed=42)
+                test_val["validation"] = test_val.pop("train")
+                test_val["train"] = splitted["train"]
+                
+                fulldataset = test_val
+                del splitted
+                del test_val
             else:
                 fulldataset = load_dataset(configs[self.dataset_name]["hub_id"])
                 

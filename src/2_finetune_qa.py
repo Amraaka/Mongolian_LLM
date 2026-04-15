@@ -1,7 +1,7 @@
 #=====================================================================================
 # STEP2 QA FINE TUNING
 #=====================================================================================
-
+import unsloth
 import torch 
 from datasets import load_from_disk, load_dataset
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
@@ -9,7 +9,11 @@ from huggingface_hub import login
 import gc 
 from dotenv import load_dotenv
 import os 
-from trl import SFTTrainer, SFTConfig, DataCollatorForCompletionOnlyLM
+import sys 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from trl import SFTTrainer, SFTConfig
+from transformers import DataCollatorForLanguageModeling
+from unsloth import FastLanguageModel 
 from unsloth import FastVisionModel
 import argparse
 from transformers.trainer_utils import get_last_checkpoint
@@ -18,7 +22,7 @@ import collections
 import numpy as np 
 import logging
 import yaml
-from utils.utils import setup_logging, CustomDataLoader, CustomLogCallback
+from utils.utils import setup_logging, CustomLogCallback, CustomDataLoader
 
 load_dotenv()
 login(token=os.getenv("HF_TOKEN"))
@@ -59,25 +63,27 @@ def f1_score_metric(prediction, reference):
 
 
 def compute_metrics(eval_preds):
-    preds, labels = eval_preds 
+    preds, labels = eval_preds
+
+    if hasattr(preds, "shape") and preds.ndim == 3:
+        preds = np.argmax(preds, axis=-1)
 
     labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
 
     decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
     decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-    em_scores = [] 
-    f1_scores = [] 
+    em_scores = []
+    f1_scores = []
 
     for pred, label in zip(decoded_preds, decoded_labels):
         em_scores.append(exact_match_metric(pred, label))
         f1_scores.append(f1_score_metric(pred, label))
-    
-    return {
-        "exact_match": em_scores,
-        "f1": np.mean(f1_scores) 
-    }
 
+    return {
+        "exact_match": np.mean(em_scores), 
+        "f1": np.mean(f1_scores)
+    }
 #=====================================================================================
 
 
@@ -151,7 +157,7 @@ if __name__ == "__main__":
 
     args = args_parse()
 
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     yaml_path = os.path.join(current_dir, "configs", "saved_model_location.yaml")
 
     with open(yaml_path, "r") as file:
@@ -167,7 +173,7 @@ if __name__ == "__main__":
         is_4bit = (args.peft.lower() == "qlora")
         model, processor = FastVisionModel.from_pretrained(
             model_name=step1_model_path,
-            load_in_4bit=is_4bit,
+            load_in_4bit=is_4bit if args.peft.lower() == "qlora" else None,
             use_gradient_checkpointing="unsloth"
         )
     
@@ -187,25 +193,28 @@ if __name__ == "__main__":
 
 
     tokenizer = processor.tokenizer 
-    EOS_TOKEN = tokenizer.eos_token 
+    MAX_SEQ_LEN = 2048
+
 
     if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token 
+        tokenizer.pad_token = tokenizer.eos_token
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
     dataloader = CustomDataLoader(current_dir=current_dir, tokenizer=tokenizer, dataset_name="qa_data")
     train_set, test_set = dataloader.load_data()
+    test_set = test_set.select(range(2))
 
-    MAX_SEQ_LEN = 2048
 
-    response_template = "<|im_start|>assistant\n"
-    collator = DataCollatorForCompletionOnlyLM(
-        response_template=response_template,
-        tokenizer=tokenizer
-    )
+    # collator = DataCollatorForLanguageModeling(
+    #     tokenizer=tokenizer, 
+    #     mlm=False
+    # )
 
-    seq2seq_config = Seq2SeqTrainingArguments(
+    sft_config = SFTConfig(
         output_dir=save_dir,
+        dataset_text_field="text",      
+        max_length=MAX_SEQ_LEN,     
+        eos_token=tokenizer.eos_token,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=1, 
         gradient_accumulation_steps=args.grad_accum_step,
@@ -229,20 +238,17 @@ if __name__ == "__main__":
         report_to=["tensorboard"],
         optim="adamw_8bit",
         seed=3407,
-        predict_with_generate=True,     
-        generation_max_length=128,      
-        generation_num_beams=1,         
     )
 
-    trainer = Seq2SeqTrainer(
+    trainer = SFTTrainer(
         model=model,
-        args=seq2seq_config,
-        tokenizer=tokenizer,
+        args=sft_config,
+        processing_class=tokenizer,
         train_dataset=train_set,
         eval_dataset=test_set,
-        data_collator=collator,
+        # data_collator=collator,
         compute_metrics=compute_metrics,
-        callbacks=[CustomLogCallback()]
+        callbacks=[CustomLogCallback()],
     )
 
     logging.info(f"Trainnig started with\n" + ", ".join(f"{k}: {v}" for k, v in vars(args).items()) + "\n")
@@ -266,7 +272,7 @@ if __name__ == "__main__":
         }
     }
 
-    if os.path.exists(yaml_path):
+    if os.path.exists(yaml_path):   
         with open(yaml_path, "r") as file:
             existing_data = yaml.safe_load(file) or {} 
             existing_data.update(config_data)
@@ -276,7 +282,6 @@ if __name__ == "__main__":
         yaml.dump(config_data, file, default_flow_style=False)
 
     logging.info(f"Training finished\nModel saved: {save_dir}\nModel configs saved: {yaml_path}\n\n\n")
-    
 
     del model 
     del trainer 
