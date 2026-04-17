@@ -176,6 +176,7 @@ if __name__ == "__main__":
             load_in_4bit=is_4bit if args.peft.lower() == "qlora" else None,
             use_gradient_checkpointing="unsloth"
         )
+
     
     elif args.peft.lower() in ["fft"]:
         model, processor = FastVisionModel.from_pretrained(
@@ -185,7 +186,7 @@ if __name__ == "__main__":
 
     model_name = configs["trained_model"]
 
-    save_dir = os.path.join(current_dir, "models", f"{model_name}_{args.peft}_mongolian_qa") 
+    save_dir = os.path.join(current_dir, "models", f"{model_name}_{args.peft}_mongolian_qa_{args.save_version}") 
     hub_model_id = f"{args.trainer}/{model_name}-{args.peft}-mongolian-qa-ver_{args.save_version}"
     log_file = setup_logging(current_dir, f"{model_name}-{args.peft}-mongolian-qa-ver_{args.save_version}")
 
@@ -202,7 +203,7 @@ if __name__ == "__main__":
 
     dataloader = CustomDataLoader(current_dir=current_dir, tokenizer=tokenizer, dataset_name="qa_data")
     train_set, test_set = dataloader.load_data()
-    test_set = test_set.select(range(2))    # for 16gb system ram machiine
+    test_set = test_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
 
 
 
@@ -232,7 +233,7 @@ if __name__ == "__main__":
         load_best_model_at_end=True,
         greater_is_better=False,
         save_total_limit=2,
-        dataloader_num_workers=4, 
+        dataloader_num_workers=0, 
         dataloader_pin_memory=True,
         lr_scheduler_type="cosine",     # Added cosine lr scheduler
         push_to_hub=True,
@@ -264,25 +265,28 @@ if __name__ == "__main__":
 
     trainer.save_model(save_dir)
     trainer.push_to_hub("Training completed!")
+
     relative_save_dir = os.path.relpath(save_dir, current_dir)
+    step1_relative_path = os.path.relpath(step1_model_path, current_dir)
 
     print(f"Model saved at {save_dir}")
 
-    config_data  = {
+    ordered_config = {
+        "trained_model": configs.get("trained_model", model_name),
+        "step1": configs.get("step1", {}),
+        "fine tuned model": step1_relative_path,
         "step2": {
             "local_path": relative_save_dir,
             "hub_id": hub_model_id
         }
     }
 
-    if os.path.exists(yaml_path):   
-        with open(yaml_path, "r") as file:
-            existing_data = yaml.safe_load(file) or {} 
-            existing_data.update(config_data)
-            config_data = existing_data
-    
-    with open(yaml_path, "w") as file:
-        yaml.dump(config_data, file, default_flow_style=False)
+    yaml_str = yaml.dump(ordered_config, default_flow_style=False, sort_keys=False)
+
+    yaml_str = yaml_str.replace("\nfine tuned model:", "\n\nfine tuned model:")
+
+    with open(yaml_path, "w") as f:
+        f.write(yaml_str)
 
     logging.info(f"Training finished\nModel saved: {save_dir}\nModel configs saved: {yaml_path}\n\n\n")
 

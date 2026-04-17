@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     dataloader = CustomDataLoader(current_dir=current_dir,tokenizer=tokenizer, dataset_name="text_data")
     train_set, test_set = dataloader.load_data()
-    test_set = test_set.select(range(2))    # for 16gb system ram machiine
+    test_set = test_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
     
     # training_args = TrainingArguments(
     #     output_dir=save_dir,
@@ -269,8 +269,7 @@ if __name__ == "__main__":
         eval_steps=1000,
         save_steps=1000,
         logging_steps=100,
-        # load_best_model_at_end=True,
-        load_best_model_at_end=False,
+        load_best_model_at_end=True,
         greater_is_better=False,
         save_total_limit=2,
         dataloader_num_workers=0,
@@ -322,14 +321,21 @@ if __name__ == "__main__":
     }
 
     if os.path.exists(yaml_path):
-        with open(yaml_path, "r") as file:
-            existing_data = yaml.safe_load(file) or {}
-            existing_data.update(config_data)
+        with open(yaml_path, "r") as f: 
+            existing_data = yaml.safe_load(f) or {}
+            existing_data.update(config_data) 
             config_data = existing_data
     
-    with open(yaml_path, "w") as file:
-        yaml.dump(config_data, file, default_flow_style=False)
+    yaml_str = yaml.dump(config_data, default_flow_style=False, sort_keys=False)
 
+    yaml_str = yaml_str.replace("\nstep1:", "\n\nstep1:")
+    yaml_str = yaml_str.replace("\nfine tuned model:", "\n\nfine tuned model:")
+    yaml_str = yaml_str.replace("\nstep2:", "\n\nstep2:")
+
+    with open(yaml_path, "w") as f:
+        f.write(yaml_str)
+
+        
     logging.info(f"Training finished\nModel saved: {save_dir}\nModel configs saved: {yaml_path}\n\n\n")
 
     del model 
