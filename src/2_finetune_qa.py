@@ -202,7 +202,8 @@ if __name__ == "__main__":
 
     dataloader = CustomDataLoader(current_dir=current_dir, tokenizer=tokenizer, dataset_name="qa_data")
     train_set, test_set = dataloader.load_data()
-    test_set = test_set.select(range(3))
+    test_set = test_set.select(range(2))    # for 16gb system ram machiine
+
 
 
     # collator = DataCollatorForLanguageModeling(

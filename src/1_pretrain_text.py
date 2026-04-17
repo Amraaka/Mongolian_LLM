@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     dataloader = CustomDataLoader(current_dir=current_dir,tokenizer=tokenizer, dataset_name="text_data")
     train_set, test_set = dataloader.load_data()
-    test_set = test_set.select(range(3))
+    test_set = test_set.select(range(2))    # for 16gb system ram machiine
     
     # training_args = TrainingArguments(
     #     output_dir=save_dir,
@@ -269,7 +269,8 @@ if __name__ == "__main__":
         eval_steps=1000,
         save_steps=1000,
         logging_steps=100,
-        load_best_model_at_end=True,
+        # load_best_model_at_end=True,
+        load_best_model_at_end=False,
         greater_is_better=False,
         save_total_limit=2,
         dataloader_num_workers=0,

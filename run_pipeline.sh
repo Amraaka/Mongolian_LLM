@@ -33,5 +33,6 @@
 
 
 # For LLM LAB training 
-python3 src/1_pretrain_text.py --model real --peft qlora --batch_size 2 --steps 25000 --eval_batch 1 --lr 2e-4 --grad_accum_step 4 --warmup_step 700 --save_version 0.1
+
+python3 src/1_pretrain_text.py --model real --peft qlora --batch_size 2 --steps 25000 --eval_batch 1 --lr 2e-4 --grad_accum_step 4 --warmup_step 700 --save_version 0.2
 python3 src/2_finetune_qa.py --peft qlora --batch_size 2 --steps 2000 --eval_batch 1 --lr 2e-4 --grad_accum_step 4 --warmup_step 150 --save_version 0.1 
