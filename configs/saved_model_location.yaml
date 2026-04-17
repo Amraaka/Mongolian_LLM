@@ -1,4 +1,0 @@
-step1:
-  hub_id: Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-text-ver_0.1
-  local_path: /home/gantumur/Documents/DL/Mongolian_LLM/models/Qwen3.5-2B-Base_qlora_mongolian_text_0.1
-trained_model: Qwen3.5-2B-Base
