@@ -311,11 +311,12 @@ if __name__ == "__main__":
     os.makedirs(configs_dir, exist_ok=True)
 
     yaml_path = os.path.join(configs_dir, "saved_model_location.yaml")
+    relative_save_dir = os.path.relpath(save_dir, current_dir)
 
     config_data = {
         "trained_model": model_name,
         "step1": {
-            "local_path": save_dir,
+            "local_path": relative_save_dir,
             "hub_id": hub_model_id
         }
     }

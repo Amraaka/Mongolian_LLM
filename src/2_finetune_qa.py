@@ -264,12 +264,13 @@ if __name__ == "__main__":
 
     trainer.save_model(save_dir)
     trainer.push_to_hub("Training completed!")
+    relative_save_dir = os.path.relpath(save_dir, current_dir)
 
     print(f"Model saved at {save_dir}")
 
     config_data  = {
         "step2": {
-            "local_path": save_dir,
+            "local_path": relative_save_dir,
             "hub_id": hub_model_id
         }
     }
