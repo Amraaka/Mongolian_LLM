@@ -1,5 +1,3 @@
-import os
-import yaml
 import torch
 import gradio as gr
 from unsloth import FastLanguageModel, FastVisionModel
@@ -11,23 +9,18 @@ choice = input("Enter 1 or 2: ").strip()
 
 step_key = "step2" if choice == "2" else "step1"
 
-current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-yaml_path = os.path.join(current_dir, "configs", "saved_model_location.yaml")
-
-with open(yaml_path, "r") as f:
-    configs = yaml.safe_load(f)
-
-model_path = configs[step_key]["local_path"]
-print(f"\nLoading {step_key.upper()} from: {model_path}...\n")
-
+models = {
+    "1": "Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-text-ver_0.1",
+    "2": "Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.1"
+}
 
 tokenizer = AutoTokenizer.from_pretrained(
-    model_path, 
+    models[choice], 
     use_fast=False 
 )
 
 model, _ = FastLanguageModel.from_pretrained(
-    model_name = model_path,
+    model_name = models[choice],
     max_seq_length = 1024,
     load_in_4bit = True, 
 )
@@ -74,10 +67,8 @@ demo = gr.ChatInterface(
     examples=["Монгол улсын нийслэл хот бол", "Хиймэл оюун ухаан гэж юу вэ?"],
 )
 
-cert_path = os.path.join(current_dir, "keysforce_https", "gantumur-desktop.tail981298.ts.net.crt")
-key_path = os.path.join(current_dir, "keysforce_https", "gantumur-desktop.tail981298.ts.net.key")
 
 if __name__ == "__main__":
-    demo.launch(share=False)
+    demo.launch(share=True)
 
 
