@@ -43,8 +43,8 @@ data_pushing.ipynb
 *.pdf
 models/
 unsloth_compiled_cache/
-keyforce_https/
-keyforce_https
+keysforce_https/
+keysforce_https
 test_gradio_local.py
 
 
