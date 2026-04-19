@@ -44,6 +44,7 @@ data_pushing.ipynb
 models/
 unsloth_compiled_cache/
 keyforce_https/
+keyforce_https
 test_gradio_local.py
 
 
