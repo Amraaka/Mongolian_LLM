@@ -110,8 +110,7 @@ def args_parse():
     )
     parser.add_argument(
         "--steps",
-        help="debug steps 3, 5, 10 .etc (default 3)",
-        default=5,
+        help="debug steps 3, 5, 10 .etc (Only For Debug)",
         type=int,
     )
     parser.add_argument(

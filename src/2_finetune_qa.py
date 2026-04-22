@@ -126,8 +126,7 @@ def args_parse():
     )
     parser.add_argument(
         "--steps",
-        help="debug steps 3, 5, 10 .etc (default 3)",
-        default=5,
+        help="debug steps 3, 5, 10 .etc (Only For Debug)",
         type=int,
     )
     parser.add_argument(
@@ -231,7 +230,7 @@ if __name__ == "__main__":
         max_length=MAX_SEQ_LEN,     
         eos_token=tokenizer.eos_token,
         per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=1, 
+        per_device_eval_batch_size=args.eval_batch, 
         gradient_accumulation_steps=args.grad_accum_step,
         warmup_steps=args.warmup_step,
         max_steps=args.steps,
