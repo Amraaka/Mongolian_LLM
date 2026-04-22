@@ -23,7 +23,6 @@ import numpy as np
 import logging
 import yaml
 from utils.utils import setup_logging, CustomLogCallback, CustomDataLoader
-from torch import collate_fn
 
 load_dotenv()
 login(token=os.getenv("HF_TOKEN"))
@@ -69,6 +68,7 @@ def compute_metrics(eval_preds):
     if hasattr(preds, "shape") and preds.ndim == 3:
         preds = np.argmax(preds, axis=-1)
 
+    preds = np.where(preds != -100, preds, tokenizer.pad_token_id)
     labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
 
     decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
@@ -119,9 +119,9 @@ def args_parse():
         required=True
     )
     parser.add_argument(
-        "--steps",
-        help="steps 6000, 7000, 8000, .etc (default 6000)",
-        default=6000,
+        "--epochs",
+        help="training epochs 2, 3, 4 .etc (default 3)",
+        default=3,
         type=int,
         required=True
     )
@@ -210,8 +210,8 @@ if __name__ == "__main__":
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
     dataloader = CustomDataLoader(current_dir=current_dir, tokenizer=tokenizer, dataset_name="qa_data")
-    train_set, test_set = dataloader.load_data()
-    # test_set = test_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
+    train_set, validation_set = dataloader.load_data()
+    # validation_set = validation_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
 
 
 
@@ -229,14 +229,15 @@ if __name__ == "__main__":
         per_device_eval_batch_size=1, 
         gradient_accumulation_steps=args.grad_accum_step,
         warmup_steps=args.warmup_step,
-        max_steps=args.steps,
+        # max_steps=args.steps,
+        num_train_epochs=args.epochs,
         gradient_checkpointing=True,
         fp16=False,
         bf16=True,
         eval_strategy="steps",
         save_strategy="steps",
-        eval_steps=500,
-        save_steps=500,
+        eval_steps=250,
+        save_steps=250,
         logging_steps=100,
         load_best_model_at_end=True,
         greater_is_better=False,
@@ -256,7 +257,7 @@ if __name__ == "__main__":
         args=sft_config,
         processing_class=tokenizer,
         train_dataset=train_set,
-        eval_dataset=test_set,
+        eval_dataset=validation_set,
         data_collator=collator,
         compute_metrics=compute_metrics,
         callbacks=[CustomLogCallback()],

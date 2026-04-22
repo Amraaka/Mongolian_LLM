@@ -85,16 +85,21 @@ class CustomDataLoader():
         return {"prompt": prompts, "chosen": chosens, "rejected": rejecteds} 
 
 
-    def load_data(self):
+    def load_data(self, only_test=False):
         with open(self.yaml_path, "r") as file:
             configs = yaml.safe_load(file)
 
         mapped_dir = os.path.join(self.current_dir, configs[self.dataset_name]["local_path"]["mapped"])
 
-        if os.path.exists(f"{mapped_dir}/train_set") and os.path.exists(f"{mapped_dir}/test_set"):
+        if os.path.exists(f"{mapped_dir}/train_set") and os.path.exists(f"{mapped_dir}/validation_set") and os.path.exists(f"{mapped_dir}/test_set"):
+            print("Loading data from local (mapped)")
             train_set = load_from_disk(f"{mapped_dir}/train_set")
+            validation_set = load_from_disk(f"{mapped_dir}/validation_set")
             test_set = load_from_disk(f"{mapped_dir}/test_set")
-            return train_set, test_set
+            
+            if only_test:
+                return test_set
+            return train_set, validation_set
         else:
             local_dir = configs[self.dataset_name]["local_path"]["raw"]
 
@@ -106,25 +111,33 @@ class CustomDataLoader():
                 test_val["train"] = splitted["train"]
                 
                 fulldataset = test_val
+                print("Loading data from local")
+
                 del splitted
                 del test_val
             else:
                 fulldataset = load_dataset(configs[self.dataset_name]["hub_id"])
+                print("Loading data from hub")
+
                 
             if self.dataset_name == "qa_data":
                 self.tokenizer.pad_token = self.tokenizer.eos_token
                 self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
             train_set = fulldataset["train"].map(self.maps[self.dataset_name], batched=True)
-            test_set = fulldataset["validation"].map(self.maps[self.dataset_name], batched=True)
+            validation_set = fulldataset["validation"].map(self.maps[self.dataset_name], batched=True)
+            test_set = fulldataset["test"].map(self.maps[self.dataset_name], batched=True)
+
 
             train_set.save_to_disk(f"{mapped_dir}/train_set")
+            validation_set.save_to_disk(f"{mapped_dir}/validation_set")
             test_set.save_to_disk(f"{mapped_dir}/test_set")
 
             del fulldataset
             gc.collect()
-
-            return train_set, test_set
+            if only_test:
+                return test_set
+            return train_set, validation_set
 
 
 

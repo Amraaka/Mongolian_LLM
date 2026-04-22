@@ -102,9 +102,9 @@ def args_parse():
         required=True
     )
     parser.add_argument(
-        "--steps",
-        help="steps 6000, 7000, 8000, .etc (default 6000)",
-        default=6000,
+        "--epochs",
+        help="training epochs 3, 4, 5 .etc (default 4)",
+        default=4,
         type=int,
         required=True
     )
@@ -211,8 +211,8 @@ if __name__ == "__main__":
     logging.info(f"Loaded model and processer with {args.peft}!")
 
     dataloader = CustomDataLoader(current_dir=current_dir,tokenizer=tokenizer, dataset_name="text_data")
-    train_set, test_set = dataloader.load_data()
-    # test_set = test_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
+    train_set, validation_set = dataloader.load_data()
+    # validation_set = validation_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
     
     # training_args = TrainingArguments(
     #     output_dir=save_dir,
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     #     args=training_args,                  
     #     processing_class=tokenizer,
     #     train_dataset=train_set,
-    #     eval_dataset=test_set,  
+    #     eval_dataset=validation_set,  
     #     compute_metrics=compute_metrics,
     #     callbacks=[CustomLogCallback()],
     #     data_collator=data_collator
@@ -267,7 +267,8 @@ if __name__ == "__main__":
         per_device_eval_batch_size=args.eval_batch,
         gradient_accumulation_steps=args.grad_accum_step,
         warmup_steps=args.warmup_step,
-        max_steps=args.steps,
+        # max_steps=args.steps,
+        num_train_epoch=args.epochs,
         gradient_checkpointing=True,
         fp16=False,
         bf16=True,
@@ -295,7 +296,7 @@ if __name__ == "__main__":
         processing_class=tokenizer,
         train_dataset=train_set,
         data_collator=collator,
-        eval_dataset=test_set,  
+        eval_dataset=validation_set,  
         compute_metrics=compute_metrics,
         callbacks=[CustomLogCallback()],
         preprocess_logits_for_metrics=preprocess_logits_for_metrics
