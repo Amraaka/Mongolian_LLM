@@ -123,7 +123,12 @@ def args_parse():
         help="training epochs 2, 3, 4 .etc (default 3)",
         default=3,
         type=int,
-        required=True
+    )
+    parser.add_argument(
+        "--steps",
+        help="debug steps 3, 5, 10 .etc (default 3)",
+        default=5,
+        type=int,
     )
     parser.add_argument(
         "--eval_batch",
@@ -229,7 +234,7 @@ if __name__ == "__main__":
         per_device_eval_batch_size=1, 
         gradient_accumulation_steps=args.grad_accum_step,
         warmup_steps=args.warmup_step,
-        # max_steps=args.steps,
+        max_steps=args.steps,
         num_train_epochs=args.epochs,
         gradient_checkpointing=True,
         fp16=False,
@@ -242,7 +247,7 @@ if __name__ == "__main__":
         load_best_model_at_end=True,
         greater_is_better=False,
         save_total_limit=2,
-        dataloader_num_workers=0, 
+        dataloader_num_workers=4, 
         dataloader_pin_memory=True,
         lr_scheduler_type="cosine",     # Added cosine lr scheduler
         push_to_hub=True,

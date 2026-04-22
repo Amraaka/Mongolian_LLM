@@ -46,6 +46,7 @@ class CustomDataLoader():
         self.tokenizer = tokenizer
         self.dataset_name = dataset_name.lower()
         self.yaml_path = os.path.join(self.current_dir, "configs", "data_locations.yaml")
+        self.split_path = os.path.join(self.current_dir, "configs", "data_split_partition.yaml")
         self.EOS_TOKEN = self.tokenizer.eos_token
         self.maps = {"text_data": self.format_text, 
                      "qa_data": self.format_qa, 
@@ -89,6 +90,9 @@ class CustomDataLoader():
         with open(self.yaml_path, "r") as file:
             configs = yaml.safe_load(file)
 
+        with open(self.split_path, "r") as file:
+            ratio = yaml.safe_load(file)
+
         mapped_dir = os.path.join(self.current_dir, configs[self.dataset_name]["local_path"]["mapped"])
 
         if os.path.exists(f"{mapped_dir}/train_set") and os.path.exists(f"{mapped_dir}/validation_set") and os.path.exists(f"{mapped_dir}/test_set"):
@@ -105,9 +109,10 @@ class CustomDataLoader():
 
             if os.path.exists(local_dir):
                 fulldataset = load_from_disk(local_dir)
-                splitted = fulldataset.train_test_split(test_size=0.2, seed=42)
-                test_val = splitted["test"].train_test_split(test_size=0.5, seed=42)
-                test_val["validation"] = test_val.pop("train")
+                splitted = fulldataset.train_test_split(test_size=ratio[self.dataset_name]["test"], seed=42)
+                test_val = splitted["test"].train_test_split(test_size=ratio[self.dataset_name]["validation"], seed=42)
+                test_val["validation"] = test_val.pop("test")
+                test_val["test"] = test_val.pop("train")
                 test_val["train"] = splitted["train"]
                 
                 fulldataset = test_val
@@ -118,7 +123,6 @@ class CustomDataLoader():
             else:
                 fulldataset = load_dataset(configs[self.dataset_name]["hub_id"])
                 print("Loading data from hub")
-
                 
             if self.dataset_name == "qa_data":
                 self.tokenizer.pad_token = self.tokenizer.eos_token

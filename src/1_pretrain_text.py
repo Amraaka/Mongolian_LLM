@@ -109,6 +109,12 @@ def args_parse():
         required=True
     )
     parser.add_argument(
+        "--steps",
+        help="debug steps 3, 5, 10 .etc (default 3)",
+        default=5,
+        type=int,
+    )
+    parser.add_argument(
         "--eval_batch",
         help="eval batch size 4, 8, .etc (default 4)",
         default=4,
@@ -267,7 +273,7 @@ if __name__ == "__main__":
         per_device_eval_batch_size=args.eval_batch,
         gradient_accumulation_steps=args.grad_accum_step,
         warmup_steps=args.warmup_step,
-        # max_steps=args.steps,
+        max_steps=args.steps,
         num_train_epoch=args.epochs,
         gradient_checkpointing=True,
         fp16=False,
@@ -280,7 +286,7 @@ if __name__ == "__main__":
         load_best_model_at_end=True,
         greater_is_better=False,
         save_total_limit=2,
-        dataloader_num_workers=0,
+        dataloader_num_workers=4,
         dataloader_pin_memory=True,
         push_to_hub=True,
         hub_model_id=hub_model_id,
