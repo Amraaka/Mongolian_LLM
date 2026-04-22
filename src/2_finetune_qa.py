@@ -23,6 +23,7 @@ import numpy as np
 import logging
 import yaml
 from utils.utils import setup_logging, CustomLogCallback, CustomDataLoader
+from torch import collate_fn
 
 load_dotenv()
 login(token=os.getenv("HF_TOKEN"))
@@ -86,6 +87,13 @@ def compute_metrics(eval_preds):
     }
 #=====================================================================================
 
+def preprocess_logits_for_metrics(logits, labels):
+    if isinstance(logits, tuple):
+        logits = logits[0]
+
+    pred_ids = torch.argmax(logits, dim=-1)
+
+    return pred_ids 
 
 def args_parse():
     parser = argparse.ArgumentParser(description="TRAINGING HYPERPARAMETERS")
@@ -203,14 +211,14 @@ if __name__ == "__main__":
 
     dataloader = CustomDataLoader(current_dir=current_dir, tokenizer=tokenizer, dataset_name="qa_data")
     train_set, test_set = dataloader.load_data()
-    test_set = test_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
+    # test_set = test_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
 
 
 
-    # collator = DataCollatorForLanguageModeling(
-    #     tokenizer=tokenizer, 
-    #     mlm=False
-    # )
+    collator = DataCollatorForLanguageModeling(
+        tokenizer=tokenizer, 
+        mlm=False
+    )
 
     sft_config = SFTConfig(
         output_dir=save_dir,
@@ -249,9 +257,10 @@ if __name__ == "__main__":
         processing_class=tokenizer,
         train_dataset=train_set,
         eval_dataset=test_set,
-        # data_collator=collator,
+        data_collator=collator,
         compute_metrics=compute_metrics,
         callbacks=[CustomLogCallback()],
+        preprocess_logits_for_metrics=preprocess_logits_for_metrics
     )
 
     logging.info(f"Trainnig started with\n" + ", ".join(f"{k}: {v}" for k, v in vars(args).items()) + "\n")

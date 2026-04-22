@@ -63,6 +63,13 @@ def compute_metrics(eval_preds):
         "eval_loss_recalculated": loss.item() 
     }
 
+def preprocess_logits_for_metrics(logits, labels):
+    if isinstance(logits, tuple):
+        logits = logits[0]
+
+    pred_ids = torch.argmax(logits, dim=-1)
+
+    return pred_ids 
 
 
 def args_parse():
@@ -205,7 +212,7 @@ if __name__ == "__main__":
 
     dataloader = CustomDataLoader(current_dir=current_dir,tokenizer=tokenizer, dataset_name="text_data")
     train_set, test_set = dataloader.load_data()
-    test_set = test_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
+    # test_set = test_set.shuffle(seed=42).select(range(2))    # for 16gb system ram machiine
     
     # training_args = TrainingArguments(
     #     output_dir=save_dir,
@@ -236,7 +243,7 @@ if __name__ == "__main__":
         
     # )
 
-    # data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+    collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
     # trainer = Trainer(
     #     model=model,
@@ -287,9 +294,11 @@ if __name__ == "__main__":
         args=sft_config,                  
         processing_class=tokenizer,
         train_dataset=train_set,
+        data_collator=collator,
         eval_dataset=test_set,  
         compute_metrics=compute_metrics,
-        callbacks=[CustomLogCallback()]
+        callbacks=[CustomLogCallback()],
+        preprocess_logits_for_metrics=preprocess_logits_for_metrics
     )
 
    

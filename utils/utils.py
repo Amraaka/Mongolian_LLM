@@ -65,7 +65,7 @@ class CustomDataLoader():
     def format_qa(self, batch):
         formatted_texts = []
 
-        for question, answer in zip(batch["instruction"], batch["output"]):
+        for question, answer in zip(batch["question"], batch["answer"]):
             text = f"<|im_start|>user\n{question}<|im_end|>\n<|im_start|>assistant\n{answer}<|im_end|>"
             formatted_texts.append(text)
 
