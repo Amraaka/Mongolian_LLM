@@ -1,10 +1,9 @@
-import os 
+import os
 from transformers import TrainerCallback
 import logging
-import gc 
-import os 
-from datasets import load_dataset, load_from_disk
-import yaml 
+import gc
+from datasets import load_dataset, load_from_disk, Dataset, DatasetDict
+import yaml
 from typing import Any, List, Dict
 
 
@@ -105,33 +104,39 @@ class CustomDataLoader():
                 return test_set
             return train_set, validation_set
         else:
-            local_dir = configs[self.dataset_name]["local_path"]["raw"]
+            local_dir = os.path.join(self.current_dir, configs[self.dataset_name]["local_path"]["raw"])
 
             if os.path.exists(local_dir):
                 fulldataset = load_from_disk(local_dir)
+                print("Loading data from local")
+            else:
+                fulldataset = load_dataset(configs[self.dataset_name]["hub_id"])
+                print("Loading data from hub")
+
+            # If we got a single Dataset (raw, unsplit), split it now using YAML ratios.
+            # If we got a DatasetDict (already split — typical for Hub-pushed data), use it as-is.
+            if isinstance(fulldataset, Dataset):
                 splitted = fulldataset.train_test_split(test_size=ratio[self.dataset_name]["test"], seed=42)
                 test_val = splitted["test"].train_test_split(test_size=ratio[self.dataset_name]["validation"], seed=42)
                 test_val["validation"] = test_val.pop("test")
                 test_val["test"] = test_val.pop("train")
                 test_val["train"] = splitted["train"]
-                
                 fulldataset = test_val
-                print("Loading data from local")
+                del splitted, test_val
 
-                del splitted
-                del test_val
-            else:
-                fulldataset = load_dataset(configs[self.dataset_name]["hub_id"])
-                print("Loading data from hub")
-                
             if self.dataset_name == "qa_data":
                 self.tokenizer.pad_token = self.tokenizer.eos_token
                 self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
-            train_set = fulldataset["train"].map(self.maps[self.dataset_name], batched=True)
-            validation_set = fulldataset["validation"].map(self.maps[self.dataset_name], batched=True)
-            test_set = fulldataset["test"].map(self.maps[self.dataset_name], batched=True)
-
+            map_fn = self.maps[self.dataset_name]
+            if map_fn is not None:
+                train_set = fulldataset["train"].map(map_fn, batched=True)
+                validation_set = fulldataset["validation"].map(map_fn, batched=True)
+                test_set = fulldataset["test"].map(map_fn, batched=True)
+            else:
+                train_set = fulldataset["train"]
+                validation_set = fulldataset["validation"]
+                test_set = fulldataset["test"]
 
             train_set.save_to_disk(f"{mapped_dir}/train_set")
             validation_set.save_to_disk(f"{mapped_dir}/validation_set")
