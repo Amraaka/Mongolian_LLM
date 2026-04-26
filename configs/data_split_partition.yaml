@@ -2,24 +2,19 @@ text_data:
   train: 60000
   validation: 785
   test: 1000
-
 qa_data:
   train: 98000
   validation: 1025
   test: 10000
-
-dpo_data: 
-  train:
-  validation:
-  test:
-
+dpo_data:
+  train: 8995
+  validation: 500
+  test: 500
 instruction_data:
-  train:
-  validation:
-  test:
-
+  train: null
+  validation: null
+  test: null
 iam_data:
-  train:
-  validation:
-  test:
-  
+  train: null
+  validation: null
+  test: null

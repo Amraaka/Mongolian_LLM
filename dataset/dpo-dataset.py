@@ -28,12 +28,13 @@ login(token=os.getenv("HF_TOKEN"))
 COSINE_WEIGHT = 0.7
 CHRF_WEIGHT = 0.3
 THRESHOLD = 0.85
-GEN_BATCH_SIZE = 128
-EMBED_BATCH_SIZE = 128
+GEN_BATCH_SIZE = 16
+EMBED_BATCH_SIZE = 32
+EMBED_MAX_SEQ_LEN = 512
 
 
 @torch.inference_mode()
-def generate_rejected_batch(model, tokenizer, questions, max_new_tokens=1024):
+def generate_rejected_batch(model, tokenizer, questions, max_new_tokens=512):
     prompts = [
         f"<|im_start|>user\n{q}<|im_end|>\n<|im_start|>assistant\n"
         for q in questions
@@ -63,42 +64,61 @@ if __name__ == "__main__":
     model_configs = _load_yaml("saved_model_location.yaml")
     data_configs = _load_yaml("data_locations.yaml")
 
-    model_path = model_configs["step2"]["hub_id"]
-
     setup_logging(current_dir, "dpo_dataset")
 
-    model, processor = FastVisionModel.from_pretrained(
-        model_name=model_path,
-        load_in_4bit=True,
-    )
-    FastVisionModel.for_inference(model)
-    tokenizer = processor.tokenizer
-    tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.pad_token_id = tokenizer.eos_token_id
-    tokenizer.padding_side = "left"   # required for batched decoder-only generation
+    save_dir = os.path.join(current_dir, data_configs["dpo_data"]["local_path"]["raw"])
+    os.makedirs(save_dir, exist_ok=True)
+    intermediate_path = os.path.join(save_dir, "_intermediate_generation.json")
 
-    dataloader = CustomDataLoader(current_dir=current_dir, tokenizer=tokenizer, dataset_name="qa_data")
-    test_set = dataloader.load_data(only_test=True)
+    if os.path.exists(intermediate_path):
+        logging.info(f"Resuming from intermediate generation cache: {intermediate_path}")
+        with open(intermediate_path, "r", encoding="utf-8") as f:
+            cached = json.load(f)
+        questions = cached["questions"]
+        chosen = cached["chosen"]
+        rejected = cached["rejected"]
+        logging.info(f"Loaded cached generations | total={len(questions)} | skipping SFT generation")
+    else:
+        model_path = model_configs["step2"]["hub_id"]
 
-    logging.info(f"DPO dataset prep started | model={model_path} | test_size={len(test_set)} | gen_batch={GEN_BATCH_SIZE}")
+        model, processor = FastVisionModel.from_pretrained(
+            model_name=model_path,
+            load_in_4bit=True,
+        )
+        FastVisionModel.for_inference(model)
+        tokenizer = processor.tokenizer
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+        tokenizer.padding_side = "left"   # required for batched decoder-only generation
 
-    questions = [item["question"] for item in test_set]
-    chosen = [item["answer"] for item in test_set]
-    rejected = []
+        dataloader = CustomDataLoader(current_dir=current_dir, tokenizer=tokenizer, dataset_name="qa_data")
+        test_set = dataloader.load_data(only_test=True)
 
-    for i in tqdm(range(0, len(questions), GEN_BATCH_SIZE)):
-        batch_q = questions[i:i + GEN_BATCH_SIZE]
-        rejected.extend(generate_rejected_batch(model, tokenizer, batch_q, max_new_tokens=1024))
+        logging.info(f"DPO dataset prep started | model={model_path} | test_size={len(test_set)} | gen_batch={GEN_BATCH_SIZE}")
 
-    del model, processor
-    gc.collect()
-    torch.cuda.empty_cache()
+        questions = [item["question"] for item in test_set]
+        chosen = [item["answer"] for item in test_set]
+        rejected = []
+
+        for i in tqdm(range(0, len(questions), GEN_BATCH_SIZE)):
+            batch_q = questions[i:i + GEN_BATCH_SIZE]
+            rejected.extend(generate_rejected_batch(model, tokenizer, batch_q, max_new_tokens=512))
+
+        with open(intermediate_path, "w", encoding="utf-8") as f:
+            json.dump({"questions": questions, "chosen": chosen, "rejected": rejected},
+                      f, ensure_ascii=False)
+        logging.info(f"Saved intermediate generation cache | path={intermediate_path}")
+
+        del model, processor
+        gc.collect()
+        torch.cuda.empty_cache()
 
     embedder = SentenceTransformer(
         "Qwen/Qwen3-Embedding-0.6B",
         device="cuda",
         model_kwargs={"torch_dtype": torch.float16},
     )
+    embedder.max_seq_length = EMBED_MAX_SEQ_LEN
 
     emb_c = embedder.encode(chosen, batch_size=EMBED_BATCH_SIZE, normalize_embeddings=True,
                             convert_to_numpy=True, show_progress_bar=True)
@@ -139,9 +159,6 @@ if __name__ == "__main__":
             kept.append({"prompt": q, "chosen": ch, "rejected": rj})
 
         metadata.append(meta)
-
-    save_dir = os.path.join(current_dir, data_configs["dpo_data"]["local_path"]["raw"])
-    os.makedirs(save_dir, exist_ok=True)
 
     Dataset.from_list(kept).save_to_disk(save_dir)
 
