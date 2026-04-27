@@ -52,3 +52,4 @@ dataset/push_dpo_to_hub.ipynb
 dataset/unsloth_compiled_cache
 dataset/test_dpo_dataset.ipynb
 test/test_qa_model_v0.3.ipynb
+dataset/test_dpo_model.ipynb

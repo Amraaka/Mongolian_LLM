@@ -1,9 +1,15 @@
 trained_model: Qwen3.5-2B-Base
+
 step1:
   local_path: models/Qwen3.5-2B-Base_qlora_mongolian_text_0.1
   hub_id: Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-text-ver_0.1
 
 fine tuned model: models/Qwen3.5-2B-Base_qlora_mongolian_text_0.1
+
 step2:
   local_path: models/Qwen3.5-2B-Base_qlora_mongolian_qa_0.3
   hub_id: Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.3
+
+step3:
+  local_path: models/Qwen3.5-2B-Base_qlora_mongolian_dpo_0.1
+  hub_id: Bokhbat/Qwen3.5-2B-Base-qlora-mongolian-dpo-ver_0.1

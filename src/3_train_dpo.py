@@ -25,7 +25,7 @@ PatchDPOTrainer()
 
 def args_parse():
     parser = argparse.ArgumentParser(description="TRAINING HYPERPARAMETERS")
-    parser.add_argument("--trainer", default="Ganaa0614", choices=["Ganaa0614"], required=True)
+    parser.add_argument("--trainer", default="Bokhbat", choices=["Bokhbat"], required=True)
     parser.add_argument("--peft", choices=["qlora", "fft", "lora"], default="qlora", required=True)
     parser.add_argument("--batch_size", default=2, type=int, required=True)
     parser.add_argument("--steps", default=2000, type=int, required=True)
@@ -65,6 +65,13 @@ if __name__ == "__main__":
             use_gradient_checkpointing="unsloth",
         )
 
+    # DPO-only fix: transformers 5.x registers Qwen3.5's model_type in the
+    # image-text-to-text mapping, which would force DPOTrainer onto the vision
+    # path (expects an "images" column we don't have). Stages 1/2 don't need
+    # this because SFTTrainer has no such dispatch.
+    from transformers.models.auto.modeling_auto import MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING_NAMES
+    MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING_NAMES.pop(model.config.model_type, None)
+
     model_name = configs["trained_model"]
 
     save_dir = os.path.join(current_dir, "models", f"{model_name}_{args.peft}_mongolian_dpo_{args.save_version}")
@@ -74,6 +81,7 @@ if __name__ == "__main__":
     os.makedirs(save_dir, exist_ok=True)
 
     tokenizer = processor.tokenizer
+
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.pad_token_id = tokenizer.eos_token_id
@@ -83,8 +91,8 @@ if __name__ == "__main__":
 
     dpo_config = DPOConfig(
         beta=0.1,
-        max_length=1536,
-        max_prompt_length=512,
+        max_length=1024,
+        max_prompt_length=256,
         output_dir=save_dir,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.eval_batch,
