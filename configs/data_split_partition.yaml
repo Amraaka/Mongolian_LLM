@@ -11,9 +11,9 @@ dpo_data:
   validation: 500
   test: 500
 instruction_data:
-  train: null
-  validation: null
-  test: null
+  train: 900
+  validation: 50
+  test: 100
 iam_data:
   train: null
   validation: null

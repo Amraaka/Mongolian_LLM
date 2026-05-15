@@ -47,10 +47,10 @@ class CustomDataLoader():
         self.yaml_path = os.path.join(self.current_dir, "configs", "data_locations.yaml")
         self.split_path = os.path.join(self.current_dir, "configs", "data_split_partition.yaml")
         self.EOS_TOKEN = self.tokenizer.eos_token
-        self.maps = {"text_data": self.format_text, 
-                     "qa_data": self.format_qa, 
-                     "dpo_data": self.format_dpo, 
-                     "instruction_data": None, 
+        self.maps = {"text_data": self.format_text,
+                     "qa_data": self.format_qa,
+                     "dpo_data": self.format_dpo,
+                     "instruction_data": self.format_instruction,
                      "iam_data": None
                     }
         
@@ -73,7 +73,7 @@ class CustomDataLoader():
         
 
     def format_dpo(self, batch):
-        prompts = [] 
+        prompts = []
         chosens = []
         rejecteds = []
 
@@ -81,8 +81,33 @@ class CustomDataLoader():
             prompts.append(f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n")
             chosens.append(f"{chosen}<|im_end|>")
             rejecteds.append(f"{rejected}<|im_end|>")
-        
-        return {"prompt": prompts, "chosen": chosens, "rejected": rejecteds} 
+
+        return {"prompt": prompts, "chosen": chosens, "rejected": rejecteds}
+
+
+    def format_instruction(self, batch):
+        """Web-search function-calling format. The model is trained to:
+        1) emit <tool_call>...</tool_call> JSON given the user question
+        2) produce a Mongolian answer after seeing <tool_response>...</tool_response>
+        """
+        formatted_texts = []
+        for tools, question, tool_call, tool_response, answer in zip(
+            batch["tools_json"], batch["question"],
+            batch["tool_call_json"], batch["tool_response_json"], batch["answer"],
+        ):
+            system_msg = (
+                f"Та хэрэглэгчид туслахын тулд дараах хэрэгслүүдийг ашиглаж болно.\n"
+                f"<tools>\n{tools}\n</tools>"
+            )
+            text = (
+                f"<|im_start|>system\n{system_msg}<|im_end|>\n"
+                f"<|im_start|>user\n{question}<|im_end|>\n"
+                f"<|im_start|>assistant\n<tool_call>{tool_call}</tool_call><|im_end|>\n"
+                f"<|im_start|>tool\n<tool_response>{tool_response}</tool_response><|im_end|>\n"
+                f"<|im_start|>assistant\n{answer}<|im_end|>"
+            )
+            formatted_texts.append(text)
+        return {"text": formatted_texts}
 
 
     def load_data(self, only_test=False):

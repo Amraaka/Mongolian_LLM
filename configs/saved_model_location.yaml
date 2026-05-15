@@ -13,3 +13,7 @@ step2:
 step3:
   local_path: models/Qwen3.5-2B-Base_qlora_mongolian_dpo_0.1
   hub_id: Bokhbat/Qwen3.5-2B-Base-qlora-mongolian-dpo-ver_0.1
+
+step4:
+  local_path: models/Qwen3.5-2B-Base_qlora_mongolian_search_0.1
+  hub_id: Bokhbat/Qwen3.5-2B-Base-qlora-mongolian-search-ver_0.1

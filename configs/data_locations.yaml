@@ -15,8 +15,8 @@ dpo_data:
   hub_id: Bokhbat/mongolian-dpo-dataset
 instruction_data:
   local_path:
-    raw: data/instruction_data/
-    mapped: data/instruction_data/
+    raw: data/instruction_data/raw
+    mapped: data/instruction_data/mapped
   hub_id: ''
 iam_data:
   local_path:
