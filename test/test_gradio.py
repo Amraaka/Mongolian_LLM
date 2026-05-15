@@ -5,13 +5,15 @@ from transformers import AutoTokenizer
 
 print("[1] Step 1 Model (Continued Pre-Training)")
 print("[2] Step 2 Model (QA Fine-Tuned)")
-choice = input("Enter 1 or 2: ").strip()
+choice = input("Enter number:").strip()
 
 step_key = "step2" if choice == "2" else "step1"
 
 models = {
     "1": "Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-text-ver_0.1",
-    "2": "Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.1"
+    "2": "Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.2",
+    "3": "Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.3",
+    "4": "Bokhbat/Qwen3.5-2B-Base-qlora-mongolian-dpo-ver_0.1"
 }
 
 tokenizer = AutoTokenizer.from_pretrained(
