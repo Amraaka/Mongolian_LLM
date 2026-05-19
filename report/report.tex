@@ -1,0 +1,201 @@
+% !TEX program = xelatex
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{mongolian}
+\setotherlanguage{english}
+
+\setmainfont{Times New Roman}
+\newfontfamily\cyrillicfont{Times New Roman}[Script=Cyrillic]
+
+\setmonofont{Courier New}
+\newfontfamily\cyrillicfonttt{Courier New}[Script=Cyrillic]
+
+\usepackage[top=0.5in, bottom=0.8in, left=0.87in, right=0.91in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{multicol}
+\usepackage{titlesec}
+\usepackage{indentfirst} 
+\usepackage{colortbl}    
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codekey}{RGB}{0,0,160}
+\definecolor{codecom}{RGB}{0,128,0}
+
+\lstdefinestyle{pseudo}{
+	backgroundcolor=\color{codebg},
+	basicstyle=\fontsize{8pt}{9.5pt}\ttfamily,
+	keywordstyle=\color{codekey}\bfseries,
+	commentstyle=\color{codecom}\itshape,
+	breaklines=true, 
+	showstringspaces=false,
+	tabsize=4,           
+	columns=fixed,       
+	keepspaces=true,
+	morekeywords={for,while,if,else,return,function,parallel,merge,split,
+		thread,kernel,global,shared,end,do,then,procedure,call,
+		fork,join,synchronize,each,in,Output,Input}
+}
+\lstset{style=pseudo}
+
+\definecolor{tblheader}{RGB}{91,155,213}
+
+\renewcommand{\figurename}{-р Зураг}
+\renewcommand{\tablename}{-р хүснэгт} 
+\renewcommand{\refname}{АШИГЛАСАН МАТЕРИАЛ}
+
+\setlength{\columnsep}{0.25in}
+
+
+\setlength{\parindent}{0.25in} 
+\raggedbottom 
+\pagestyle{empty} 
+
+\renewcommand{\thesection}{\Roman{section}}
+\titleformat{\section}[block]{\centering\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+\titlespacing{\section}{0pt}{12pt}{6pt} 
+
+\renewcommand{\thesubsection}{\Alph{subsection}}
+\titleformat{\subsection}[block]{\normalsize\itshape}{\thesubsection.}{0.5em}{}
+\titlespacing{\subsection}{0pt}{10pt}{4pt}
+
+\title{\fontsize{13.5pt}{16pt}\selectfont\textbf{\uppercase{гүн сургалт тайлан}}}
+
+\author{
+	\parbox{\textwidth}{\centering \fontsize{9.5pt}{11pt}\selectfont
+		\textbf{Бөхбатын Амартүвшин\textsuperscript{1}, Нямын Гантөмөр\textsuperscript{2}} \\[1ex]
+		\textsuperscript{1}Монгол улс, Улаанбаатар, ШУТИС, Мэдээлэл холбооны технологийн сургууль, Компьютерын ухааны тэнхим \\
+		\textsuperscript{2}Монгол улс, Улаанбаатар, ШУТИС, Мэдээлэл холбооны технологийн сургууль, Компьютерын ухааны тэнхим\\[1ex]
+		\textit{\underline{B231910004@must.edu.mn}}\textsuperscript{1}, \textit{\underline{B231960002@must.edu.mn}}\textsuperscript{2}
+	}
+}
+
+\date{}
+
+\begin{document}
+	\maketitle
+	\thispagestyle{empty} 
+	\vspace{-2em}
+	
+	\noindent
+	\begin{minipage}{\textwidth}
+		\fontsize{9pt}{11pt}\selectfont
+		\textbf{\textit{Хураангуй:}} \textbf{Гүн сургалт тайлан}
+		
+		\vspace{0.3cm}
+		\textbf{\textit{Түлхүүр үг:}} \textbf{\textit{LLM, Qwen3.5, NLP, QLoRA, Unsloth, Perplexity}}
+	\end{minipage}
+	\vspace{0.6cm}
+	
+	\begin{multicols}{2}
+		
+		\section{Оршил}
+		Том хэлний загвар (large language model) нь хэлний загварчлалын хамгийн боловсронгуй загвар юм. Энэ нь Статистик хэлний загвар (statistic language model), Мэдрэлийн сүлжээнд суурилсан хэлний загвар (neural language model), урьдчилагдан сургагдсан хэлний загваруудын (pre-trained language model) хувьслын үр дүнд бий болсон transformers архитектур дээр суурилсан нэгдсэн том систем юм. Тэрбумаас их наядаар хэмжигдэх параметр агуулсан загварууд нь асар их хэмжээний текст өгөгдөл дээр урьдчилан сургагдсан байдаг. Загвар нь текстийг боловсруулахдаа хамгийн түрүүнд үгсийг тасралтгүй вектор орон зайд хувиргаж, үг хоорондын утга зүйн хамаарлыг орон зайгаар тодорхойлдог механизмтай. Уламжлалт статистик , болон мэдрэлийн сүлжээнд суурилсан хэлний загваруудаас transformers архитектурын self-attention механизм ашиглан өгүүлбэр дэх үгс хоорондын зайны хамаарлыг зэрэгцээгээр тооцоолж, өмнөх агуулгад тулгуурлан дараагийн үгийн гарах магадлалын үржигдэхүүнийг урьдчилан таамаглах зарчмаар ажилладаг. 
+		
+		Transformers архитектурын давуу тал нь аливаа хэлний хэлбэр зүйн онцлогоос үл хамааран утга зүйн ижил төстэй байдлыг суралцах боломжийг олгодог. Гэсэн хэдий ч том хэлний загваруудын өвөрмөц хэв шинж, бүтэцтэй хэлнүүд дээр шууд Англи хэлтэй ижил хэмжээнд сайн суралцдаггүй бөгөөд архитектурын тодорхой хэмжээний тохируулга хийх шаардлагатай юм. 
+		
+		Монгол хэл нь Англи хэл зэрэг их нөөцтэй хэлнүүдтэй харьцуулахад дижитал өгөгдлийн хэмжээ харьцангуй маш бага нөөцтэй хэлний ангилалд багтдаг. Том хэлний загваруудыг урьдчилан сургахад асар их хэмжээний цэвэр өгөгдөл шаарддаг бол Монгол хэлний хувьд чанартай нээлттэй эхийн текст, асуулт хариултын төрөлжсөн өгөгдлийн сангууд хомс байдаг. Үүнээс гадна бүтцийн хувьд англи хэлтэй ижил тусгаарлах хэл биш, харин үгний үндэстэй дагавар, нөхцөл залгаж шинэ утга үүсгэдэг залгамал хэл учраас нэг язгуураас хэдэн зуун шинэ утга үүсэх боломжтой байдал нь үгийн сангийн хэмжээг маш ихээр нэмэгдүүлж токенжуулалтын шатанд хүндрэл үзүлдэг. 
+		
+		\section{Өгөгдлийн багц (Dataset)}
+		ашигласан dataset
+		
+		
+		
+		
+		\section{Арга Зүй}
+		
+		\subsection{Pretraining}
+		
+		
+		\subsection{QA Fine-Tuning}
+		
+		
+		
+		\subsection{DPO}
+		
+		
+		
+		\subsection{Instruction tuning}       
+		
+		
+		
+		\section{Үр Дүн}
+		
+		\subsection{Pretraining}
+		
+		
+		\subsection{QA Fine-Tuning}
+		
+		
+		
+		\subsection{DPO}
+		
+		
+		
+		\subsection{Instruction tuning}  
+		
+		
+		график
+		loss
+		evaluation
+		
+		% \begin{figure}[H]
+			% 	\centering
+			% 	\includegraphics[width=0.98\linewidth]{assets/diagram_cuda.png}
+			% 	\caption{CUDA архитектур --- Grid / Block / Thread шатлал ба санах
+				% 		ойн зохион байгуулалт.\\
+				% 		\textit{Тайлбар:} Зүүн талд Host-аас Device-руу cudaMemcpy. Баруун
+				% 		талд Grid дотор олон Block, block бүр 32 thread, shared memory.
+				% 		Зүүн доод буланд санах ойн шатлал (DRAM $\to$ Shared $\to$ Register).
+				% 		Эцэст нь D2H буцаан хуулна.}
+			% \end{figure}
+		
+		
+		\begin{table}[H]
+			\centering
+			\fontsize{8pt}{10pt}\selectfont
+
+			\caption*{\raggedleft\fontsize{8pt}{10pt}\itshape 1-р хүснэгт.}
+			\vspace{-6pt}
+			\begin{tabular}{|c|r|r|r|r|}
+				\hline
+				\rowcolor{tblheader}
+				\textbf{\textcolor{white}{n}} &
+				\textbf{\textcolor{white}{Sequential}} &
+				\textbf{\textcolor{white}{std::thread}} &
+				\textbf{\textcolor{white}{OpenMP}} &
+				\textbf{\textcolor{white}{CUDA}} \\
+				\hline
+				$10^4$ &       34.35 &     1.244 &     1.287 &   27.57 \\ \hline
+				$10^5$ &   12{,}002  &    60.01  &    56.91  &   68.06 \\ \hline
+				$10^6$ & 1{,}969{,}350 & 21{,}208 & 21{,}338  &  406.14 \\ \hline
+			\end{tabular}
+		\end{table}
+		
+		\section*{Дүгнэлт}
+		загвар хэр сайжирсан
+		цаашид сайжруулах боломж
+		
+		\begin{thebibliography}{10}
+			\fontsize{8pt}{9pt}\selectfont
+			
+			\bibitem{knuth1998} 
+			D.\,E.~Knuth, \textit{The Art of Computer Programming, Volume~3: Sorting and Searching}, 2nd~ed. Reading, MA, USA: Addison-Wesley, 1998.
+			
+			
+		\end{thebibliography}
+		
+	\end{multicols}
+	
+\end{document}
