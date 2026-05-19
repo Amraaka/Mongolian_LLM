@@ -1,0 +1,17 @@
+2026-05-15 15:29:59,410 - INFO - STEP 4 (search FC) training started | model=models/Qwen3.5-2B-Base_qlora_mongolian_dpo_0.1 | train_size=900 | val_size=50 | trainer=Bokhbat, peft=qlora, batch_size=2, epochs=1, steps=None, eval_batch=1, lr=0.0002, grad_accum_step=8, warmup_step=10, save_version=0.1
+2026-05-15 15:31:28,126 - INFO - Step 10: loss=1.5555984497070312, grad_norm=1.5153827667236328, learning_rate=0.00018, epoch=0.17777777777777778
+2026-05-15 15:32:31,210 - INFO - Step 20: loss=1.0985401153564454, grad_norm=0.7502248883247375, learning_rate=0.00018244415603417603, epoch=0.35555555555555557
+2026-05-15 15:32:46,323 - INFO - Step 20: eval_loss=1.0231237411499023, eval_runtime=15.1096, eval_samples_per_second=3.309, eval_steps_per_second=3.309, epoch=0.35555555555555557
+2026-05-15 15:33:54,840 - INFO - Step 30: loss=1.0397709846496581, grad_norm=0.6754580736160278, learning_rate=0.00012962755808856342, epoch=0.5333333333333333
+2026-05-15 15:35:00,344 - INFO - Step 40: loss=0.9959517478942871, grad_norm=0.7230285406112671, learning_rate=6.405922271624874e-05, epoch=0.7111111111111111
+2026-05-15 15:35:09,253 - INFO - Step 40: eval_loss=0.9581928849220276, eval_runtime=8.9055, eval_samples_per_second=5.615, eval_steps_per_second=5.615, epoch=0.7111111111111111
+2026-05-15 15:36:15,396 - INFO - Step 50: loss=0.9691709518432617, grad_norm=0.6669278144836426, learning_rate=1.3959842073986085e-05, epoch=0.8888888888888888
+2026-05-15 15:37:03,719 - INFO - Step 57: eval_loss=0.9470770359039307, eval_runtime=8.9326, eval_samples_per_second=5.598, eval_steps_per_second=5.598, epoch=1.0
+2026-05-15 15:37:05,059 - INFO - Step 57: train_runtime=424.9984, train_samples_per_second=2.118, train_steps_per_second=0.134, total_flos=1.051803656370432e+16, train_loss=1.1155981431927597, epoch=1.0
+2026-05-15 15:37:25,940 - WARNING - No files have been modified since last commit. Skipping to prevent empty commit.
+2026-05-15 15:37:29,326 - WARNING - No files have been modified since last commit. Skipping to prevent empty commit.
+2026-05-15 15:37:29,646 - INFO - STEP 4 training finished | saved=/home/toru2/Amara/Mongolian_LLM/models/Qwen3.5-2B-Base_qlora_mongolian_search_0.1 | hub=Bokhbat/Qwen3.5-2B-Base-qlora-mongolian-search-ver_0.1
+2026-05-15 15:39:11,064 - INFO - STEP 4 (search FC) training started | model=models/Qwen3.5-2B-Base_qlora_mongolian_dpo_0.1 | train_size=900 | val_size=50 | trainer=Bokhbat, peft=qlora, batch_size=2, epochs=1, steps=None, eval_batch=1, lr=0.0002, grad_accum_step=8, warmup_step=10, save_version=0.1
+2026-05-15 15:39:11,917 - INFO - Step 57: train_runtime=0.0085, train_samples_per_second=105845.491, train_steps_per_second=6703.548, total_flos=1.051803656370432e+16, train_loss=0.0, epoch=1.0
+2026-05-15 15:39:21,612 - WARNING - No files have been modified since last commit. Skipping to prevent empty commit.
+2026-05-15 15:39:21,891 - INFO - STEP 4 training finished | saved=/home/toru2/Amara/Mongolian_LLM/models/Qwen3.5-2B-Base_qlora_mongolian_search_0.1 | hub=Bokhbat/Qwen3.5-2B-Base-qlora-mongolian-search-ver_0.1

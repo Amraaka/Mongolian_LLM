@@ -1,0 +1,12 @@
+2026-04-25 14:06:00,988 - INFO - DPO dataset prep started | model=Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.3 | test_size=10000 | gen_batch=8
+2026-04-25 14:08:27,618 - INFO - DPO dataset prep started | model=Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.3 | test_size=10000 | gen_batch=32
+2026-04-25 14:22:51,432 - INFO - DPO dataset prep started | model=Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.3 | test_size=10000 | gen_batch=64
+2026-04-25 14:27:37,328 - INFO - DPO dataset prep started | model=Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.3 | test_size=10000 | gen_batch=128
+2026-04-25 17:53:40,129 - INFO - DPO dataset prep started | model=Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.3 | test_size=10000 | gen_batch=16
+2026-04-26 02:46:32,860 - INFO - Load pretrained SentenceTransformer: Qwen/Qwen3-Embedding-0.6B
+2026-04-26 02:46:40,520 - INFO - 2 prompts are loaded, with the keys: ['query', 'document']
+2026-04-26 09:03:17,901 - INFO - DPO dataset prep started | model=Ganaa0614/Qwen3.5-2B-Base-qlora-mongolian-qa-ver_0.3 | test_size=10000 | gen_batch=16
+2026-04-26 13:29:18,346 - INFO - Saved intermediate generation cache | path=/home/toru2/Amara/Mongolian_LLM/data/dpo_data/_intermediate_generation.json
+2026-04-26 13:29:18,551 - INFO - Load pretrained SentenceTransformer: Qwen/Qwen3-Embedding-0.6B
+2026-04-26 13:29:25,810 - INFO - 2 prompts are loaded, with the keys: ['query', 'document']
+2026-04-26 13:32:21,490 - INFO - DPO dataset prep finished | total=10000 | dropped(too_similar (score>=0.85))=5 | kept=9995 | saved_to=/home/toru2/Amara/Mongolian_LLM/data/dpo_data/
