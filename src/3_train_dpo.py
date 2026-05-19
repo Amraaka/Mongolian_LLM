@@ -65,10 +65,6 @@ if __name__ == "__main__":
             use_gradient_checkpointing="unsloth",
         )
 
-    # DPO-only fix: transformers 5.x registers Qwen3.5's model_type in the
-    # image-text-to-text mapping, which would force DPOTrainer onto the vision
-    # path (expects an "images" column we don't have). Stages 1/2 don't need
-    # this because SFTTrainer has no such dispatch.
     from transformers.models.auto.modeling_auto import MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING_NAMES
     MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING_NAMES.pop(model.config.model_type, None)
 

@@ -126,7 +126,7 @@ def args_parse():
     )
     parser.add_argument(
         "--steps",
-        help="debug steps 3, 5, 10 .etc (Only For Debug)",
+        help="debug steps 3, 5, 10 .etc (Only For ebug)",
         type=int,
     )
     parser.add_argument(
@@ -233,15 +233,15 @@ if __name__ == "__main__":
         per_device_eval_batch_size=args.eval_batch, 
         gradient_accumulation_steps=args.grad_accum_step,
         warmup_steps=args.warmup_step,
-        max_steps=args.steps,
+        # max_steps=args.steps, # for debug 
         num_train_epochs=args.epochs,
         gradient_checkpointing=True,
         fp16=False,
         bf16=True,
         eval_strategy="steps",
         save_strategy="steps",
-        eval_steps=250,
-        save_steps=250,
+        eval_steps=1000,
+        save_steps=1000,
         logging_steps=100,
         load_best_model_at_end=True,
         greater_is_better=False,

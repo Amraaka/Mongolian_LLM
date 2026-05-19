@@ -1,0 +1,94 @@
+2026-04-19 16:46:52,840 - WARNING - num_proc must be <= 2. Reducing num_proc to 2 for dataset of size 2.
+2026-04-19 16:46:55,361 - INFO - Trainnig started with
+trainer: Ganaa0614, peft: qlora, batch_size: 2, steps: 2000, eval_batch: 1, lr: 0.0002, grad_accum_step: 4, warmup_step: 150, save_version: 0.1
+
+2026-04-19 16:50:55,581 - INFO - Step 100: loss=1.5063735961914062, grad_norm=3.637251377105713, learning_rate=3.3e-05, epoch=0.18788163457022075
+2026-04-19 16:55:14,236 - INFO - Step 200: loss=1.2752066040039063, grad_norm=3.51188063621521, learning_rate=4.9913501641817354e-05, epoch=0.3757632691404415
+2026-04-19 16:59:29,093 - INFO - Step 300: loss=1.261016616821289, grad_norm=2.8276209831237793, learning_rate=4.920398624978493e-05, epoch=0.5636449037106623
+2026-04-19 17:03:41,401 - INFO - Step 400: loss=1.2308663940429687, grad_norm=2.716916084289551, learning_rate=4.779816624143302e-05, epoch=0.751526538280883
+2026-04-19 17:07:44,534 - INFO - Step 500: loss=1.2424530792236328, grad_norm=2.5892293453216553, learning_rate=4.573648449883188e-05, epoch=0.9394081728511038
+2026-04-19 17:11:52,767 - INFO - Step 600: loss=1.1382353973388672, grad_norm=3.0789389610290527, learning_rate=4.3078251852021636e-05, epoch=1.125880695162048
+2026-04-19 17:15:55,697 - INFO - Step 700: loss=1.1072501373291015, grad_norm=3.6491405963897705, learning_rate=3.989994081441902e-05, epoch=1.3137623297322687
+2026-04-19 17:19:54,358 - INFO - Step 800: loss=1.0889344787597657, grad_norm=2.619198799133301, learning_rate=3.629298560783952e-05, epoch=1.5016439643024895
+2026-04-19 17:23:39,586 - INFO - Step 900: loss=1.0795459747314453, grad_norm=2.777320146560669, learning_rate=3.2361151766409624e-05, epoch=1.6895255988727103
+2026-04-19 17:27:32,167 - INFO - Step 1000: loss=1.0721824645996094, grad_norm=3.732027530670166, learning_rate=2.821755099107541e-05, epoch=1.877407233442931
+2026-04-19 17:27:33,373 - INFO - Step 1000: eval_loss=0.7581101655960083, eval_exact_match=0.0, eval_f1=0.7073363751473606, eval_runtime=1.2044, eval_samples_per_second=1.661, eval_steps_per_second=1.661, epoch=1.877407233442931
+2026-04-19 17:31:23,122 - INFO - Step 1100: loss=1.0308051300048828, grad_norm=3.2322442531585693, learning_rate=2.3981387131908287e-05, epoch=2.063879755753875
+2026-04-19 17:35:10,215 - INFO - Step 1200: loss=0.9235682678222656, grad_norm=2.942396640777588, learning_rate=1.977452691037239e-05, epoch=2.251761390324096
+2026-04-19 17:39:09,763 - INFO - Step 1300: loss=0.9356280517578125, grad_norm=3.4186601638793945, learning_rate=1.5717994035630174e-05, epoch=2.4396430248943166
+2026-04-19 17:43:00,542 - INFO - Step 1400: loss=0.9507291412353516, grad_norm=3.3772284984588623, learning_rate=1.1928487572777159e-05, epoch=2.6275246594645374
+2026-04-19 17:46:51,747 - INFO - Step 1500: loss=0.9418775177001953, grad_norm=2.834782361984253, learning_rate=8.515024723212566e-06, epoch=2.815406294034758
+2026-04-19 17:50:48,560 - INFO - Step 1600: loss=0.932656021118164, grad_norm=3.385417938232422, learning_rate=5.5758045982422235e-06, epoch=3.001878816345702
+2026-04-19 17:54:42,573 - INFO - Step 1700: loss=0.8455374145507812, grad_norm=2.7860662937164307, learning_rate=3.195383209436906e-06, epoch=3.189760450915923
+2026-04-19 17:58:39,863 - INFO - Step 1800: loss=0.8566056823730469, grad_norm=2.338770866394043, learning_rate=1.44224094613023e-06, epoch=3.3776420854861438
+2026-04-19 18:02:33,050 - INFO - Step 1900: loss=0.8688043975830078, grad_norm=3.083003282546997, learning_rate=3.668125192994448e-07, epoch=3.5655237200563645
+2026-04-19 18:06:35,081 - INFO - Step 2000: loss=0.8673308563232421, grad_norm=2.788785457611084, learning_rate=3.604675686275094e-11, epoch=3.7534053546265853
+2026-04-19 18:06:35,614 - INFO - Step 2000: eval_loss=0.7680261135101318, eval_exact_match=0.0, eval_f1=0.7074178953878202, eval_runtime=0.5308, eval_samples_per_second=3.768, eval_steps_per_second=3.768, epoch=3.7534053546265853
+2026-04-19 18:06:36,958 - INFO - Step 2000: train_runtime=4780.6041, train_samples_per_second=3.347, train_steps_per_second=0.418, total_flos=4.58518708865737e+16, train_loss=1.0577803611755372, epoch=3.7534053546265853
+2026-04-19 18:06:58,777 - WARNING - No files have been modified since last commit. Skipping to prevent empty commit.
+2026-04-19 18:06:59,062 - INFO - Training finished
+Model saved: /home/gantumur/Documents/DL/Mongolian_LLM/models/Qwen3.5-2B-Base_qlora_mongolian_qa_0.1
+Model configs saved: /home/gantumur/Documents/DL/Mongolian_LLM/configs/saved_model_location.yaml
+
+
+
+2026-04-19 18:57:11,727 - WARNING - num_proc must be <= 2. Reducing num_proc to 2 for dataset of size 2.
+2026-04-19 18:57:14,380 - INFO - Trainnig started with
+trainer: Ganaa0614, peft: qlora, batch_size: 2, steps: 2000, eval_batch: 1, lr: 5e-05, grad_accum_step: 4, warmup_step: 150, save_version: 0.1
+
+2026-04-19 18:57:53,133 - INFO - Step 2001: eval_loss=0.7680261135101318, eval_exact_match=0.0, eval_f1=0.7074178953878202, eval_runtime=3.0624, eval_samples_per_second=0.653, eval_steps_per_second=0.653, epoch=3.7552841709722875
+2026-04-19 18:57:54,286 - INFO - Step 2001: train_runtime=38.3615, train_samples_per_second=417.085, train_steps_per_second=52.136, total_flos=4.588042336284557e+16, train_loss=0.00038771600141815994, epoch=3.7552841709722875
+2026-04-19 18:58:08,260 - WARNING - No files have been modified since last commit. Skipping to prevent empty commit.
+2026-04-19 18:58:08,546 - INFO - Training finished
+Model saved: /home/gantumur/Documents/DL/Mongolian_LLM/models/Qwen3.5-2B-Base_qlora_mongolian_qa_0.1
+Model configs saved: /home/gantumur/Documents/DL/Mongolian_LLM/configs/saved_model_location.yaml
+
+
+
+2026-04-19 19:00:22,304 - WARNING - num_proc must be <= 2. Reducing num_proc to 2 for dataset of size 2.
+2026-04-19 19:00:24,169 - INFO - Trainnig started with
+trainer: Ganaa0614, peft: qlora, batch_size: 2, steps: 2000, eval_batch: 1, lr: 5e-05, grad_accum_step: 4, warmup_step: 150, save_version: 0.1
+
+2026-04-19 19:00:40,595 - INFO - Step 2002: eval_loss=0.7671313881874084, eval_exact_match=0.0, eval_f1=0.7074178953878202, eval_runtime=3.0127, eval_samples_per_second=0.664, eval_steps_per_second=0.664, epoch=3.7571629873179897
+2026-04-19 19:00:41,764 - INFO - Step 2002: train_runtime=16.2764, train_samples_per_second=983.021, train_steps_per_second=122.878, total_flos=4.591332393195072e+16, train_loss=0.0004198941793832388, epoch=3.7571629873179897
+2026-04-19 19:01:03,450 - WARNING - No files have been modified since last commit. Skipping to prevent empty commit.
+2026-04-19 19:01:03,691 - INFO - Training finished
+Model saved: /home/gantumur/Documents/DL/Mongolian_LLM/models/Qwen3.5-2B-Base_qlora_mongolian_qa_0.1
+Model configs saved: /home/gantumur/Documents/DL/Mongolian_LLM/configs/saved_model_location.yaml
+
+
+
+2026-04-19 19:06:28,047 - WARNING - num_proc must be <= 2. Reducing num_proc to 2 for dataset of size 2.
+2026-04-19 19:06:29,838 - INFO - Trainnig started with
+trainer: Ganaa0614, peft: qlora, batch_size: 2, steps: 4000, eval_batch: 1, lr: 5e-05, grad_accum_step: 4, warmup_step: 150, save_version: 0.1
+
+2026-04-19 19:10:57,127 - INFO - Step 2100: loss=0.8867408596739477, grad_norm=2.809530735015869, learning_rate=2.4510432440372767e-05, epoch=3.941286989196806
+2026-04-19 19:15:19,456 - INFO - Step 2200: loss=0.8633463287353516, grad_norm=3.632622718811035, learning_rate=2.2474720101855317e-05, epoch=4.12775951150775
+2026-04-19 19:19:43,616 - INFO - Step 2300: loss=0.8403400421142578, grad_norm=3.0111258029937744, learning_rate=2.0455813084418167e-05, epoch=4.3156411460779704
+2026-04-19 19:24:07,366 - INFO - Step 2400: loss=0.849278564453125, grad_norm=3.491792678833008, learning_rate=1.8467146881166146e-05, epoch=4.503522780648192
+2026-04-19 19:28:04,406 - INFO - Step 2500: loss=0.8808317565917969, grad_norm=2.8244831562042236, learning_rate=1.6521955737575076e-05, epoch=4.691404415218413
+2026-04-19 19:31:50,592 - INFO - Step 2600: loss=0.8577175903320312, grad_norm=3.523540735244751, learning_rate=1.4633184579771591e-05, epoch=4.879286049788633
+2026-04-19 19:35:34,447 - INFO - Step 2700: loss=0.8230545806884766, grad_norm=3.791753053665161, learning_rate=1.2813402868185576e-05, epoch=5.065758572099577
+2026-04-19 19:40:00,692 - INFO - Step 2800: loss=0.7628495788574219, grad_norm=3.8659005165100098, learning_rate=1.1074720949864786e-05, epoch=5.2536402066697985
+2026-04-19 19:44:13,991 - INFO - Step 2900: loss=0.7630986022949219, grad_norm=3.6709201335906982, learning_rate=9.428709466113328e-06, epoch=5.441521841240019
+2026-04-19 19:48:24,693 - INFO - Step 3000: loss=0.7742950439453125, grad_norm=3.598175048828125, learning_rate=7.886322351782783e-06, epoch=5.629403475810239
+2026-04-19 19:48:25,974 - INFO - Step 3000: eval_loss=0.779390811920166, eval_exact_match=0.0, eval_f1=0.6925630155443819, eval_runtime=1.2792, eval_samples_per_second=1.563, eval_steps_per_second=1.563, epoch=5.629403475810239
+2026-04-19 19:52:36,084 - INFO - Step 3100: loss=0.7763397979736328, grad_norm=3.3114044666290283, learning_rate=6.457823938643068e-06, epoch=5.81728511038046
+2026-04-19 19:56:30,902 - INFO - Step 3200: loss=0.7638469696044922, grad_norm=3.657592535018921, learning_rate=5.152720647947964e-06, epoch=6.003757632691404
+2026-04-19 20:00:27,716 - INFO - Step 3300: loss=0.71808349609375, grad_norm=3.125196933746338, learning_rate=3.979697726770174e-06, epoch=6.191639267261625
+2026-04-19 20:04:27,042 - INFO - Step 3400: loss=0.7099497985839843, grad_norm=3.5337162017822266, learning_rate=2.946561449114968e-06, epoch=6.379520901831846
+2026-04-19 20:08:37,413 - INFO - Step 3500: loss=0.7157298278808594, grad_norm=3.8084628582000732, learning_rate=2.0601871664546606e-06, epoch=6.567402536402067
+2026-04-19 20:12:43,251 - INFO - Step 3600: loss=0.7087288665771484, grad_norm=3.4934191703796387, learning_rate=1.3264735533988937e-06, epoch=6.7552841709722875
+2026-04-19 20:16:58,278 - INFO - Step 3700: loss=0.7017652893066406, grad_norm=3.9307703971862793, learning_rate=7.503033529883241e-07, epoch=6.943165805542508
+2026-04-19 20:20:56,113 - INFO - Step 3800: loss=0.6932253265380859, grad_norm=3.9164133071899414, learning_rate=3.355108828452941e-07, epoch=7.129638327853453
+2026-04-19 20:24:50,572 - INFO - Step 3900: loss=0.6871830749511719, grad_norm=4.2183098793029785, learning_rate=8.485651842266574e-08, epoch=7.317519962423673
+2026-04-19 20:29:01,467 - INFO - Step 4000: loss=0.6926239776611328, grad_norm=3.2335946559906006, learning_rate=8.32316061072369e-12, epoch=7.505401596993893
+2026-04-19 20:29:02,008 - INFO - Step 4000: eval_loss=0.8109588623046875, eval_exact_match=0.0, eval_f1=0.6937652542931902, eval_runtime=0.5398, eval_samples_per_second=3.705, eval_steps_per_second=3.705, epoch=7.505401596993893
+2026-04-19 20:29:03,230 - INFO - Step 4000: train_runtime=4952.2404, train_samples_per_second=6.462, train_steps_per_second=0.808, total_flos=9.15583498308841e+16, train_loss=0.3862823638916016, epoch=7.505401596993893
+2026-04-19 20:29:23,714 - WARNING - No files have been modified since last commit. Skipping to prevent empty commit.
+2026-04-19 20:29:23,955 - INFO - Training finished
+Model saved: /home/gantumur/Documents/DL/Mongolian_LLM/models/Qwen3.5-2B-Base_qlora_mongolian_qa_0.1
+Model configs saved: /home/gantumur/Documents/DL/Mongolian_LLM/configs/saved_model_location.yaml
+
+
+

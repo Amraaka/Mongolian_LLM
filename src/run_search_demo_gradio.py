@@ -161,20 +161,20 @@ def make_pipeline(model, tokenizer, tavily):
         raw_call, parsed = extract_tool_call(round1)
 
         if not raw_call or not parsed:
-            answer = "❌ Загвар хүчинтэй tool_call гаргаж чадсангүй."
+            answer = "Загвар хүчинтэй tool_call гаргаж чадсангүй."
             internals = f"**Raw model output (Round 1):**\n```\n{round1[:500]}\n```"
             return answer, internals, ""
 
         try:
             query = parsed["arguments"]["query"]
         except (KeyError, TypeError):
-            return f"❌ tool_call дотор query байхгүй: `{parsed}`", "", ""
+            return f"tool_call дотор query байхгүй: `{parsed}`", "", ""
 
         # PYTHON — call Tavily
         try:
             tavily_resp = tavily.search(query=query, search_depth="basic", max_results=5, include_answer=True)
         except Exception as e:
-            return f"❌ Tavily call failed: {e}", "", ""
+            return f"Tavily call failed: {e}", "", ""
 
         tool_response_json, sources = format_tool_response(tavily_resp)
 
@@ -184,9 +184,9 @@ def make_pipeline(model, tokenizer, tavily):
         answer = strip_after_imend(round2)
 
         internals_md = (
-            f"**🛠 Tool call (Round 1 output):**\n```json\n{json.dumps(parsed, ensure_ascii=False, indent=2)}\n```\n\n"
-            f"**🔎 Search query sent to Tavily:** `{query}`\n\n"
-            f"**📄 Top snippets returned:**\n```json\n{json.dumps(json.loads(tool_response_json), ensure_ascii=False, indent=2)[:1500]}\n```"
+            f"**Tool call (Round 1 output):**\n```json\n{json.dumps(parsed, ensure_ascii=False, indent=2)}\n```\n\n"
+            f"**Search query sent to Tavily:** `{query}`\n\n"
+            f"**op snippets returned:**\n```json\n{json.dumps(json.loads(tool_response_json), ensure_ascii=False, indent=2)[:1500]}\n```"
         )
         sources_md = "\n".join([f"- [{title}]({url})" for title, url in sources]) if sources else "_No sources_"
 
@@ -212,7 +212,7 @@ def main():
 
     with gr.Blocks(title="Mongolian Search Assistant", theme=gr.themes.Soft()) as demo:
         gr.Markdown(
-            "# 🔍 Монгол хайлтын туслах\n"
+            "# Монгол хайлтын туслах\n"
             "Qwen3.5-2B загвар Tavily-тэй холбогдож интернетээс хайлт хийж монгол хэлээр хариулна."
         )
 
@@ -223,14 +223,14 @@ def main():
                 lines=2,
                 scale=4,
             )
-            submit_btn = gr.Button("🔍 Хайх", variant="primary", scale=1)
+            submit_btn = gr.Button("Хайх", variant="primary", scale=1)
 
-        answer_box = gr.Markdown(label="💬 Хариулт")
+        answer_box = gr.Markdown(label="Хариулт")
 
-        with gr.Accordion("📎 Эх сурвалж", open=True):
+        with gr.Accordion("Эх сурвалж", open=True):
             sources_box = gr.Markdown()
 
-        with gr.Accordion("🔧 Загвар хэрхэн ажилласан (Round 1 → Tavily → Round 2)", open=False):
+        with gr.Accordion("Загвар хэрхэн ажилласан (Round 1 → Tavily → Round 2)", open=False):
             internals_box = gr.Markdown()
 
         submit_btn.click(

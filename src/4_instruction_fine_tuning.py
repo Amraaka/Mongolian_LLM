@@ -24,7 +24,6 @@ from utils.utils import setup_logging, CustomDataLoader, CustomLogCallback
 load_dotenv()
 login(token=os.getenv("HF_TOKEN"))
 
-
 def args_parse():
     parser = argparse.ArgumentParser(description="STEP 4 TRAINING HYPERPARAMETERS")
     parser.add_argument("--trainer", default="Bokhbat", required=True)

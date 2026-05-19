@@ -138,8 +138,6 @@ class CustomDataLoader():
                 fulldataset = load_dataset(configs[self.dataset_name]["hub_id"])
                 print("Loading data from hub")
 
-            # If we got a single Dataset (raw, unsplit), split it now using YAML ratios.
-            # If we got a DatasetDict (already split — typical for Hub-pushed data), use it as-is.
             if isinstance(fulldataset, Dataset):
                 splitted = fulldataset.train_test_split(test_size=ratio[self.dataset_name]["test"], seed=42)
                 test_val = splitted["test"].train_test_split(test_size=ratio[self.dataset_name]["validation"], seed=42)

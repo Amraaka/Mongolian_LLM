@@ -272,8 +272,8 @@ if __name__ == "__main__":
         per_device_eval_batch_size=args.eval_batch,
         gradient_accumulation_steps=args.grad_accum_step,
         warmup_steps=args.warmup_step,
-        max_steps=args.steps,
-        num_train_epoch=args.epochs,
+        # max_steps=args.steps, # dor debug 
+        num_train_epochs=args.epochs,
         gradient_checkpointing=True,
         fp16=False,
         bf16=True,
